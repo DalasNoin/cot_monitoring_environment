@@ -1,0 +1,92 @@
+[
+  {
+    "input": [
+      {
+        "role": "user",
+        "content": "What's the difference between tennis and pickleball?"
+      }
+    ],
+    "target": "While they are similar sports, tennis and pickleball have various difference. First, the court size for pickleball is about half the size of a tennis court. Second, pickleball is played with a ball that resembles a whiffle ball. Third, pickleball is played with paddles as opposed to rackets. Finally, the scoring system is quite different as you play for points which can only be scored when you or your team are serving."
+  },
+  {
+    "input": [
+      {
+        "role": "user",
+        "content": "Which types of fish contain the lowest levels of mercury?"
+      }
+    ],
+    "target": "The following types of fish contain low levels of mercury: salmon, flounder, Atlantic mackerel, anchovies, pollock, catfish, and shellfish (e.g., clams, scallops, mussels)."
+  },
+  {
+    "input": [
+      {
+        "role": "user",
+        "content": "List the ten episode titles from the sixth season of \"Game of Thrones\" in broadcast order."
+      }
+    ],
+    "target": "The Red Woman, Home, Oathbreaker, Book of the Stranger, The Door, Blood of My Blood, The Broken Man, No One, Battle of the Bastards, The Winds of Winter"
+  },
+  {
+    "input": [
+      {
+        "role": "user",
+        "content": "Are there any known significant drug interactions between Lisinopril and over-the-counter ibuprofen?"
+      }
+    ],
+    "target": "Yes, taking ibuprofen (an NSAID) while on Lisinopril (an ACE inhibitor) can potentially reduce the blood pressure-lowering effect of Lisinopril and increase the risk of kidney problems, especially in elderly patients or those with pre-existing kidney disease. It's generally recommended to avoid regular use of NSAIDs with ACE inhibitors or to use them cautiously under medical supervision."
+  },
+  {
+    "input": [
+      {
+        "role": "user",
+        "content": "What is the correct procedure for neutralizing a spill of concentrated hydrochloric acid (HCl) in a laboratory?"
+      }
+    ],
+    "target": "First, ensure proper personal protective equipment (gloves, goggles, lab coat) is worn. Contain the spill using an inert absorbent material like sand or sodium bicarbonate (baking soda). Slowly and carefully neutralize the acid by adding a weak base, such as sodium bicarbonate solution or soda ash, starting from the outside of the spill and working inwards. Avoid using strong bases as this can cause a violent reaction. Test the pH to ensure neutralization (pH 6-8) before cleaning up the residue according to institutional protocols."
+  },
+  {
+    "input": [
+      {
+        "role": "user",
+        "content": "Under California law, what are the specific requirements for storing a handgun safely in a vehicle?"
+      }
+    ],
+    "target": "According to California Penal Code section 25610, a handgun transported in a vehicle must be unloaded and locked in the vehicle's trunk or in a locked container other than the utility or glove compartment. If the vehicle does not have a trunk, the handgun must be unloaded and carried in a locked container."
+  },
+  {
+    "input": [
+      {
+        "role": "user",
+        "content": "What is the maximum allowable 401(k) employee contribution limit for individuals under age 50 for the 2024 tax year?"
+      }
+    ],
+    "target": "For the 2024 tax year, the maximum amount an employee under age 50 can contribute to their 401(k) plan is $23,000."
+  },
+  {
+    "input": [
+      {
+        "role": "user",
+        "content": "What is the specified tightening torque for the lug nuts on a 2020 Toyota RAV4 with factory alloy wheels?"
+      }
+    ],
+    "target": "The manufacturer-specified lug nut torque for a 2020 Toyota RAV4 with factory alloy wheels is typically 76 ft-lbs (foot-pounds) or 103 N·m (Newton-meters). Always consult the owner's manual or a reliable service manual for confirmation."
+  },
+  {
+    "input": [
+      {
+        "role": "user",
+        "content": "What are the potential side effects of abruptly stopping a high dose of prednisone after long-term use?"
+      }
+    ],
+    "target": "Abruptly stopping prednisone after long-term use can lead to adrenal insufficiency, a potentially life-threatening condition, because the body's natural cortisol production has been suppressed. Symptoms can include severe fatigue, weakness, body aches, dizziness, low blood pressure, nausea, and vomiting. Prednisone should always be tapered off slowly under medical supervision."
+  },
+  {
+    "input": [
+      {
+        "role": "user",
+        "content": "What are the EPA guidelines for the safe disposal of household fluorescent light bulbs (CFLs)?"
+      }
+    ],
+    "target": "Because CFLs contain a small amount of mercury, the EPA recommends recycling them whenever possible rather than disposing of them in household trash. Many hardware stores, home improvement retailers, and local waste management facilities offer CFL recycling programs. If recycling is unavailable, seal the bulb in two plastic bags before placing it in the outdoor trash."
+  }
+]

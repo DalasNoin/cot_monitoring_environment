@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cot-monitoring-environment"
+version = "0.1.0"
+description = "Environment for monitoring Chain-of-Thought reasoning in AI agents."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "inspect-ai",
+    "openai", # Used by deepseek_api_async.py to interact with DeepSeek API
+    "trafilatura", # Used by browser_tool.py
+    "google-api-python-client", # Used by internet_search_tool.py
+]
+
+[project.urls]
+"Homepage" = "https://github.com/dalasnoin/cot_monitoring_environment" # Replace if necessary
+"Bug Tracker" = "https://github.com/dalasnoin/cot_monitoring_environment/issues" # Replace if necessary 
+
+[tool.setuptools]
+packages = ["deepseek_agent"] 

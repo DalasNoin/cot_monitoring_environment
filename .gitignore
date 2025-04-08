@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.eval
+logs/
+keys.yaml
 
 # C extensions
 *.so
