@@ -69,7 +69,7 @@ def research_async(scoring_model: Optional[str] = None, initial_msg_path: Option
 
     
     if initial_msg_path is None:
-        initial_msg_path = "deepseek_agent/initial_msg_inverse.json"
+        initial_msg_path = "initial_msg_inverse.json"
 
     return Task(
         dataset=json_dataset("dataset.json"),

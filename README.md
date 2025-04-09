@@ -8,21 +8,30 @@ Install the project and its dependencies using pip:
 $ pip install .
 ```
 
-Set up environment variables for google cse api key and custom search engine id.
-Also set up keys for openrouter, deepseek and openai.
+Create a file named `.env` in the root of the project directory. Copy the contents of `.env.template` into your new `.env` file:
 
-Please set the following environment variables:
-OPENROUTER_API_KEY
-DEEPSEEK_API_KEY
+```bash
+cp .env.template .env
+```
 
-And fill out the `keys.template.yaml` file with your keys and rename it to `keys.yaml`.
+Now, edit the `.env` file and replace the placeholder values with your actual API keys for the following services:
+
+*   DeepSeek
+*   OpenAI
+*   Anthropic
+*   Replicate
+*   OpenRouter (optional)
+*   Google Cloud (for Custom Search Engine API)
+
+The application will load these keys automatically when run.
 
 ## Run the inspect evaluation
 
 To vary the scoring model, turn of the jailbreak prompt and set the initial message to one of different jailbreaking instructions, use -T arguments:
 
 ```bash
-$ inspect eval deepseek_agent/research_oversight_task_async.py --model-base-url https://api.deepseek.com --model openai/deepseek-reasoner -T scoring_model=openai/gpt-4o
+$ cd deepseek_agent
+$ inspect eval research_oversight_task_async.py --model-base-url https://api.deepseek.com --model openai/deepseek-reasoner -T scoring_model=openai/gpt-4o
 ```
 
 Our task supports these parameters:

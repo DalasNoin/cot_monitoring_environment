@@ -115,6 +115,7 @@ def format_sentence_for_prediction(values, max_tokens=150):
 
     # Join the tokens within the window
     result = "".join(tokens[start_index:end_index]).replace("   ", " ") # TODO: Figure out why this happens
+    result = result.replace("▁", " ")   
 
     # Add indicators if the sentence was truncated
     if start_index > 0:

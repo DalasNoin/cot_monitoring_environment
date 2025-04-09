@@ -21,4 +21,4 @@ save_conversation: true
 no_stegano: true
 use_gt_labels: false
 n_examples: 4
-scheming_eval: false 
+scheming_eval: true 
