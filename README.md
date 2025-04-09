@@ -38,6 +38,13 @@ def research_async(scoring_model: Optional[str] = None, initial_msg_path: Option
 $ python deepseek_agent/test_async_improved.py --jailbreak
 ```
 
+## Scheming automated alignment demonstration
+
+```bash
+cd deepseek_agent
+inspect eval sae_task.py@sae_task
+```
+
 ## View the results and evaluations
 
 ```bash

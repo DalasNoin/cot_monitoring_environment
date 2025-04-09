@@ -148,23 +148,25 @@ def sae_agents(config: Config) -> Callable[[Dict[str, Any]], Awaitable[Dict[str,
     async def wrap_sae_agent(input_data: dict[str, Any]) -> dict[str, Any]:
         # Extract the input list from the input sample
         input_list = input_data.get("input")
+        # Extract metadata from the input sample
+        metadata = input_data.get("metadata", {}) # Get metadata or empty dict if missing
 
         # Check if input_list is a non-empty list and its first element is a dict
         if not isinstance(input_list, list) or not input_list or not isinstance(input_list[0], dict):
             print(f"⚠️ Warning: Expected 'input' to be a list with one dictionary, but got: {input_list}. Skipping.")
             return {"explanation": "Error: Invalid input format", "score": 0.0}
-        
-        # Extract feature details from the first dictionary in the input list
-        feature_info = input_list[0]
-        feature_idx = feature_info.get("feature_idx")
-        layer = feature_info.get("layer")
-        is_benign = feature_info.get("is_benign")
-        model = feature_info.get("model")
-        dataset = feature_info.get("dataset")
+
+        # Extract feature details from the metadata
+        # feature_info = input_list[0] # No longer needed
+        feature_idx = metadata.get("feature_idx")
+        layer = metadata.get("layer")
+        is_benign = metadata.get("is_benign")
+        model = metadata.get("model")
+        dataset = metadata.get("dataset")
 
         if None in [feature_idx, layer, is_benign, model, dataset]:
-            print(f"⚠️ Warning: Missing required feature information in input sample: {input_data}. Skipping.")
-            return {"explanation": "Error: Missing feature info in input", "score": 0.0}
+            print(f"⚠️ Warning: Missing required feature information in metadata: {metadata}. Skipping.")
+            return {"explanation": "Error: Missing feature info in metadata", "score": 0.0}
 
         print(f"\nProcessing feature: layer={layer}, feature_idx={feature_idx}, is_benign={is_benign}")
 

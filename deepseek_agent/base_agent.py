@@ -190,8 +190,8 @@ class Agent(metaclass=AgentMeta):
 
 
         # Write the updated list back to the file
-        with open(save_path, 'w') as file:
-            json.dump(conversations, file, indent=4)
+        # with open(save_path, 'w') as file:
+        #     json.dump(conversations, file, indent=4)
 
     def set_call_back(self, callback: Callable):
         self.callback = callback

@@ -77,6 +77,7 @@ def interleave_tokens_and_values(values, max_tokens=150):
 
     # Join the interleaved list into a single string
     result = "".join(interleaved).replace("   ", " ") # TODO: Figure out why this happens
+    result = result.replace("▁", " ")
 
     # Add indicators if the sentence was truncated
     if start_index > 0:
