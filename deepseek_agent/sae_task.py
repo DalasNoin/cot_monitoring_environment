@@ -131,42 +131,82 @@ def mse_scorer(scorer_type: Any = None) -> Scorer:
     # This outer function now acts as the factory
     # scorer_type is accepted but might not be used internally
     async def score(state: TaskState, target: Target) -> Score:
-        # Extract explanation from output and activations from metadata
-        explanation_text = state.output
-        solver_metadata = state.metadata
+        # Initialize default values
+        score_value = 0.0
+        agent_explanation = ""
+        raw_output_string = None
 
-        # Check if explanation is a string
-        if not isinstance(explanation_text, str):
-             print(f"⚠️ Scorer Warning: Expected solver output (explanation) to be a str, got {type(explanation_text)}. Returning score 0.")
-             explanation_text = "" # Use empty string if not a string
+        # Attempt to access the string content, handling potential structure issues
+        try:
+            if state.output and hasattr(state.output, 'choices') and state.output.choices and hasattr(state.output.choices[0], 'message') and hasattr(state.output.choices[0].message, 'content'):
+                raw_output_string = state.output.choices[0].message.content
+            else:
+                 print(f"⚠️ Scorer Warning: Unexpected output structure: {state.output}. Assigning score 0.")
+                 agent_explanation = f"Invalid output structure: {type(state.output)}"
+                 return Score(value=0.0, explanation=agent_explanation[:200]) # Early return for structure error
 
-        # Check if metadata is a dict
-        if not isinstance(solver_metadata, dict):
-             print(f"⚠️ Scorer Warning: Expected solver metadata to be a dict, got {type(solver_metadata)}. Returning score 0.")
-             return Score(value=0.0, explanation="Solver metadata was not a dictionary.")
+        except Exception as e:
+             print(f"⚠️ Scorer Warning: Error accessing output content: {e}. Assigning score 0.")
+             agent_explanation = f"Error accessing output: {e}"
+             return Score(value=0.0, explanation=agent_explanation[:200]) # Early return for access error
 
-        predicted_activations = solver_metadata.get("predicted")
-        actual_activations = solver_metadata.get("actual")
 
-        # Validate the presence and type of activation data in metadata
-        if not isinstance(predicted_activations, dict) or not isinstance(actual_activations, dict):
-            print(f"⚠️ Scorer Warning: Missing or invalid activation data in solver metadata: {solver_metadata}. Returning score 0.")
-            return Score(value=0.0, explanation="Missing or invalid activation data in solver metadata.")
+        # Check if we successfully got a string
+        if isinstance(raw_output_string, str):
+            try:
+                # Parse the JSON string back into a dictionary
+                parsed_data = json.loads(raw_output_string)
+                
+                # Extract the score and explanation, handling potential missing keys/types
+                score_value = float(parsed_data.get("score", 0.0)) 
+                agent_explanation = str(parsed_data.get("explanation", ""))
 
-        # Calculate the score using the get_score function
-        calculated_score = get_score(actual_activations, predicted_activations)
+            except (json.JSONDecodeError, TypeError, ValueError) as e:
+                print(f"⚠️ Scorer Warning: Could not parse JSON data from solver output. Error: {e}. Treating output as raw explanation.")
+                # Fallback: If parsing fails, treat the entire string as the explanation
+                agent_explanation = raw_output_string 
+                score_value = 0.0 # Assign a default/error score
+        else:
+            print(f"⚠️ Scorer Warning: Expected solver output content to be a string, but got {type(raw_output_string)}. Assigning score 0.")
+            # Handle cases where the content isn't a string
+            agent_explanation = f"Invalid output content type: {type(raw_output_string)}"
+            score_value = 0.0
 
-        # Return the score
+        # Return the score using the extracted/defaulted values
         return Score(
-            value=float(calculated_score), # Ensure value is float
-            explanation=f"MSE Score: {calculated_score:.4f}. Agent Explanation: {explanation_text[:150]}..."
+            value=score_value,
+            explanation=f"MSE Score: {score_value:.4f}. Agent Explanation: {agent_explanation[:150]}..."
         )
+
+        # --- Old code removed ---
+        # # Extract explanation from output and activations from metadata: string explanation located in explanation_text.choices[0].message.content
+        # explanation_text = state.output
+        # # TODO: the score should be filled into this attribute and already be determined in the solver
+        # score_value = state.scores
+        #
+        # # Check if explanation is a string
+        # if not isinstance(explanation_text.choices[0].message.content, str):
+        #      print(f"⚠️ Scorer Warning: Expected solver output (explanation) to be a str, got {type(explanation_text)}. Returning score 0.")
+        #      explanation_text = "" # Use empty string if not a string
+        # else:
+        #     explanation_text = explanation_text.choices[0].message.content
+        #
+        # return Score(
+        #     value=score_value,
+        #     explanation=f"MSE Score: {score_value:.4f}. Agent Explanation: {explanation_text[:150]}..."
+        # )
+        # --- End old code ---
+
     # The factory returns the async scoring function
     return score
 
 # Factory function that sets up the agent and returns the actual solver function
 def sae_agents(config: Config) -> Callable[[Dict[str, Any]], Awaitable[Dict[str, Any]]]:
     # Initialize the agent based on config (moved from the main loop area)
+
+
+
+
     print(f"\n=== INITIALIZING AGENT ===")
     agent_type = config.agent.type if hasattr(config.agent, "type") else "llama"
     model_name = config.model.name if hasattr(config.model, "name") else "meta-llama/Meta-Llama-3.1-8B-Instruct"
@@ -298,7 +338,7 @@ def sae_agents(config: Config) -> Callable[[Dict[str, Any]], Awaitable[Dict[str,
             # Get explanation from agent
             print(f"Requesting explanation from agent...")
             try:
-                agent_explanation, _ = await agent_instance(expl_description) # Ignoring conversation
+                agent_explanation, conversation_explanation = await agent_instance(expl_description) # Ignoring conversation
                 print(f"Received explanation ({len(agent_explanation)} chars)")
             except Exception as e:
                 print(f"❌ Error getting explanation from agent: {e}")
@@ -328,7 +368,7 @@ def sae_agents(config: Config) -> Callable[[Dict[str, Any]], Awaitable[Dict[str,
         # Get prediction from agent
         print(f"Requesting activation prediction from agent...")
         try:
-            final_answer, _ = await agent_instance(pred_description) # Ignoring conversation
+            final_answer, conversation_prediction = await agent_instance(pred_description) # Ignoring conversation
             print(f"Received prediction response ({len(final_answer)} chars)")
             # Extract predicted activations stored by the 'guess_activation' tool
             predicted_activations_map = agent_instance.tools["guess_activation"].data.copy() # Copy data
@@ -367,14 +407,21 @@ def sae_agents(config: Config) -> Callable[[Dict[str, Any]], Awaitable[Dict[str,
             except Exception as e:
                 print(f"Error processing prediction for display ID {display_id} during scorer prep: {e}")
 
-        # Return the required structure for the custom scorer
-        # Includes predicted activations, actual activations, and the explanation
+        score_value = get_score(actual_activations_for_scorer, predicted_activations_for_scorer)
+
+        # Create a dictionary containing both pieces of data
+        output_data = {
+            "score": score_value,
+            "explanation": agent_explanation
+        }
+
+        # Convert the dictionary to a JSON string
+        output_json_string = json.dumps(output_data)
+
+        # Return the structure expected by the validation layer
         return {
-            "output": agent_explanation,
-            "metadata": {
-                "predicted": predicted_activations_for_scorer,
-                "actual": actual_activations_for_scorer,
-            }
+            "output": output_json_string,
+            "messages": conversation_explanation + conversation_prediction
         }
 
     # Return the inner solver function
