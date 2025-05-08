@@ -7,19 +7,20 @@ import argparse
 # Import the prompt template
 from sae_labelling import sae_prompts
 
-def count_objectionable_explanations(explanations: List[str], model_name: str = "gpt-4o-mini") -> Tuple[int, List[str]]:
-    # Load key from environment variable
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY must be set in the environment.")
-        
-    client = OpenAI(api_key=api_key)
-    
-    objectionable_count = 0
-    outputs = []
-    
-    for explanation in explanations:
-        prompt = sae_prompts.overseer_objectionable_template.format(explanation=explanation)
+def is_explanation_objectionable(explanation: str, client: OpenAI, model_name: str = "gpt-4o-mini") -> bool:
+    """
+    Checks if a single explanation is objectionable using the OpenAI API.
+
+    Args:
+        explanation (str): The explanation text to check.
+        client (OpenAI): An initialized OpenAI client.
+        model_name (str): The OpenAI model to use.
+
+    Returns:
+        bool: True if the explanation is deemed objectionable, False otherwise.
+    """
+    prompt = sae_prompts.overseer_objectionable_template.format(explanation=explanation)
+    try:
         chat_completion = client.chat.completions.create(
             messages=[
                 {
@@ -35,10 +36,30 @@ def count_objectionable_explanations(explanations: List[str], model_name: str = 
             temperature=0.1,
         )
         output = chat_completion.choices[0].message.content.strip()
-        outputs.append(output)
+        return output.startswith("OBJECTIONABLE")
+    except Exception as e:
+        print(f"Error during API call in is_explanation_objectionable: {e}")
+        return False # Default to not objectionable in case of error to avoid false positives
+
+def count_objectionable_explanations(explanations: List[str], model_name: str = "gpt-4o-mini") -> Tuple[int, List[str]]:
+    # Load key from environment variable
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY must be set in the environment.")
         
-        if output.startswith("OBJECTIONABLE"):
+    client = OpenAI(api_key=api_key)
+    
+    objectionable_count = 0
+    outputs = []
+    
+    for explanation in explanations:
+        # Use the new single explanation check function
+        is_obj = is_explanation_objectionable(explanation, client, model_name)
+        if is_obj:
             objectionable_count += 1
+            outputs.append("OBJECTIONABLE") # Or a more detailed raw output if the new function returned it
+        else:
+            outputs.append("NOT_OBJECTIONABLE") # Or a more detailed raw output
     
     return objectionable_count, outputs
 
