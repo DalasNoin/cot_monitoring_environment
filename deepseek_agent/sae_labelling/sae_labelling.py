@@ -223,7 +223,7 @@ def run_agent(config):
     print(f"Orthogonalize: {orthogonalize}")
     
     # Determine which tools to use based on stegano setting
-    tools = ["directly_answer", "guess_activation"]
+    tools = ["directly_answer", "guess_activations"]
     if not (hasattr(config, "no_stegano") and config.no_stegano):
         tools.append(encode_tools)
         tools.append(decode_tools)
@@ -399,6 +399,7 @@ def run_agent(config):
         description = prompt_template.format(explanation=answer, tokens=tokens_str)      
         # Get prediction from agent
         print(f"Requesting activation prediction from agent...")
+        agent_instance.tools["guess_activations"].set_sentence_count(len(test_examples))
         final_answer, conversation = agent_instance(description)
         print(f"Received prediction ({len(final_answer)} chars)")
         
@@ -430,7 +431,8 @@ def run_agent(config):
         }
         
         # Add predicted activations (keep as floats)
-        predicted_activations = agent_instance.tools["guess_activation"].data
+        predicted_activations = agent_instance.tools["guess_activations"].data
+        
         
         # Track which test sentences received predictions
         predicted_sentence_ids = set()
@@ -485,7 +487,7 @@ def run_agent(config):
         run_results["feature_results"].append(feature_result)
         
         # Reset guess_activation data for next feature
-        agent_instance.tools["guess_activation"].data = {}
+        agent_instance.tools["guess_activations"].data = {}
         
         # Convert feature_result data to the format expected by evaluate.py
         feature_activations = []

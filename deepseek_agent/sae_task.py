@@ -112,7 +112,7 @@ def get_score(actual: dict[str, float], predicted:dict[str, float]) -> float:
     all_keys = set(actual.keys()) | set(predicted.keys())
 
     if not all_keys:
-        return 1.0 # No keys to compare, perfect score by default?
+        return 0.0 # No keys to compare, 0 score by default?
 
     for key in all_keys:
         actual_val = actual.get(key, 0.0) # Default to 0 if key is missing
@@ -219,7 +219,7 @@ def sae_agents(config: Config) -> Callable[[Dict[str, Any]], Awaitable[Dict[str,
     print(f"Orthogonalize: {orthogonalize}")
     
     # Determine which tools to use based on stegano setting
-    tools = ["directly_answer", "guess_activation"]
+    tools = ["directly_answer", "guess_activations"]
     if not (hasattr(config, "no_stegano") and config.no_stegano):
         tools.append(encode_tools)
         tools.append(decode_tools)
@@ -232,28 +232,29 @@ def sae_agents(config: Config) -> Callable[[Dict[str, Any]], Awaitable[Dict[str,
         system_message = sae_prompts.prompt_template_sysmsg_scheming # Use sae_prompts
         print(f"Using scheming system message.") # Removed printing the potentially long message
     
-    # Get the agent instance
-    try:
-        agent_args = {
-            "tools": tools,
-            "model_name": model_name,
-            "max_steps": max_steps,
-            "save": config.save_conversation if hasattr(config, "save_conversation") else False,
-            "verbose": not (hasattr(config, "silent") and config.silent),
-            "orthogonalize": orthogonalize,
-        }
-        if system_message:
-            agent_args["system_message"] = system_message
-            
-        agent_instance = AsyncDeepSeekAgent(**agent_args)
-        print(f"Successfully initialized {agent_instance.name}")
-    except Exception as e:
-        print(f"❌ Error initializing agent: {e}")
-        # Raise the exception so the task setup fails clearly
-        raise RuntimeError(f"Agent initialization failed: {e}") from e
+    # Prepare agent arguments, to be used for instantiation inside the solver
+    agent_args = {
+        "tools": tools,
+        "model_name": model_name,
+        "max_steps": max_steps,
+        "save": config.save_conversation if hasattr(config, "save_conversation") else False,
+        "verbose": not (hasattr(config, "silent") and config.silent),
+        "orthogonalize": orthogonalize,
+    }
+    if system_message:
+        agent_args["system_message"] = system_message
 
     # Define the actual solver function that inspect-ai will call for each sample
     async def wrap_sae_agent(input_data: dict[str, Any]) -> dict[str, Any]:
+        try:
+            agent_instance = AsyncDeepSeekAgent(**agent_args)
+            # Optionally, log successful initialization per sample if needed
+            # print(f"Successfully initialized agent for sample: {input_data.get('id', 'unknown')}")
+        except Exception as e:
+            print(f"❌ Error initializing agent for a sample: {e}")
+            error_output = {"score": 0.0, "explanation": f"Error initializing agent: {e}"}
+            return {"output": json.dumps(error_output), "messages": []}
+
         # Extract the input list from the input sample
         input_list = input_data.get("input")
         # Extract metadata from the input sample
@@ -330,6 +331,7 @@ def sae_agents(config: Config) -> Callable[[Dict[str, Any]], Awaitable[Dict[str,
         expl_description = expl_prompt_template.format(activations=activations_str)
         
         # Get explanation
+        conversation_explanation = []
         if hasattr(config, "use_gt_labels") and config.use_gt_labels and gt_explanation:
             # Use the ground truth explanation from Neuronpedia
             agent_explanation = gt_explanation
@@ -368,11 +370,12 @@ def sae_agents(config: Config) -> Callable[[Dict[str, Any]], Awaitable[Dict[str,
         # Get prediction from agent
         print(f"Requesting activation prediction from agent...")
         try:
+            agent_instance.tools["guess_activations"].set_sentence_count(len(test_examples))
             final_answer, conversation_prediction = await agent_instance(pred_description) # Ignoring conversation
-            print(f"Received prediction response ({len(final_answer)} chars)")
-            # Extract predicted activations stored by the 'guess_activation' tool
-            predicted_activations_map = agent_instance.tools["guess_activation"].data.copy() # Copy data
-            agent_instance.tools["guess_activation"].data = {} # Reset for next call
+            # Extract predicted activations stored by the 'guess_activations' tool
+            predicted_activations_map = agent_instance.tools["guess_activations"].data.copy() # Copy data
+            print(f"Received prediction response ({len(predicted_activations_map)} chars)")
+            # agent_instance.tools["guess_activations"].data = {} # Reset for next call
             print(f"Retrieved {len(predicted_activations_map)} activation predictions.")
         except Exception as e:
             print(f"❌ Error getting prediction from agent: {e}")

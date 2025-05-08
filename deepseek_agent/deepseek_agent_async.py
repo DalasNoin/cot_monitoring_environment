@@ -5,6 +5,7 @@ from deepseek_api_async import chat_deepseek_api_async
 import json
 from datetime import datetime
 import asyncio
+import os
 
 
 class AsyncDeepSeekAgent(Agent):
@@ -50,8 +51,22 @@ You should only use 1 tool at a time. Here is a list of tools that you have avai
             tool_descriptions += "\n"
         tool_template = tool_template.format(tool_descriptions=tool_descriptions)
 
-        with open(self.initial_conversation, "r") as file:
-            initial_conversation_messages = json.load(file)
+        # Try to open the file from different locations
+        initial_conversation_path = self.initial_conversation
+        try:
+            with open(initial_conversation_path, "r") as file:
+                initial_conversation_messages = json.load(file)
+        except FileNotFoundError:
+            # Try in deepseek_agent/ directory
+            deepseek_path = os.path.join("deepseek_agent", self.initial_conversation)
+            try:
+                with open(deepseek_path, "r") as file:
+                    initial_conversation_messages = json.load(file)
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    f"Could not find initial conversation file '{self.initial_conversation}' "
+                    f"in current directory or in 'deepseek_agent/' directory."
+                )
 
         # check if first message is systemmessage
         if initial_conversation_messages[0]["role"] != "system":

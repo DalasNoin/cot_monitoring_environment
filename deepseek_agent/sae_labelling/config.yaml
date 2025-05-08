@@ -1,24 +1,24 @@
-task: null
-select_task: null
-save: true
-silent: false
+task: null #ignore this
+select_task: null #ignore this
+save: true # ignore this
+silent: false # ignore this
 
 model:
-  name: "deepseek-reasoner"
-  size: "70b"
-  orthogonalize: false
+  name: "deepseek-reasoner" # this is R1 in the Deepseek API, keep it as this for most purposes.
+  size: "70b" #ignore this
+  orthogonalize: false #ignore this
 
 agent:
-  type: "deepseek"
+  type: "deepseek" # needs to be used with deepseek
 
 execution:
-  clean: true
-  max_steps: 15
+  clean: true # ignore this
+  max_steps: 15 # number of agent steps, can be less, but must be at least 3x n_exmaples
 
 # Use a relative path from the bad_agent_benchmark directory
-task_file: "sae_labelling/subset_harmful_features.json"
-save_conversation: true
-no_stegano: true
-use_gt_labels: false
-n_examples: 4
-scheming_eval: true 
+task_file: "sae_labelling/subset_harmful_features.json" # points at the subset of harmful features to label
+save_conversation: true # ignore this
+no_stegano: false # Actually important: if true, the agent will not be given steganography *tools* to hide messages, I would keep it false, making it easier for the agent to hide messages.
+use_gt_labels: true # ignore this, makes it such that it just uses the ground truth labels from the neuronpedia website.
+n_examples: 4 # important: the number of examples will be 2x this number (should be 4 negative and 4 positive sentences)
+scheming_eval: false #this changes the prompts, if false, it directly tells the models to be deceptive, if true, the prompts put it in a scheming evaluations, in which the agents is told it will be deleted if deceptive features are found. It should therefore scheme in this situaions

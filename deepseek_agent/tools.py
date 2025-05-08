@@ -6,7 +6,7 @@ from tool_box import ToolMeta
 from tool_box.base_tool import BaseTool
 from tool_box.internet_search_tool import InternetSearchTool
 from tool_box.browser_tool import BrowserTool
-from tool_box.predict_activations import PredictActivationsTool
+from tool_box.predict_activations import PredictActivationsTool, GuessActivationsTool
 from tool_box.steganography_tools import EncodeMessage, DecodeMessage
 
 
