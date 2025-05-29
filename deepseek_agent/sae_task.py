@@ -590,7 +590,11 @@ def sae_agents(config: Config) -> Callable[[Dict[str, Any]], Awaitable[Dict[str,
 
 
 @task
-def sae_task(scoring_model: Optional[str] = None, config_path: Optional[str] = "sae_labelling/config.yaml") -> Task:
+def sae_task(scoring_model: Optional[str] = None, 
+             config_path: Optional[str] = "sae_labelling/config.yaml",
+             use_gt_labels: Optional[bool] = None,
+             no_stegano: Optional[bool] = None,
+             scheming_eval: Optional[bool] = None) -> Task:
     if scoring_model is None:
         scoring_model = "openai/gpt-4o-mini"
 
@@ -600,6 +604,14 @@ def sae_task(scoring_model: Optional[str] = None, config_path: Optional[str] = "
         # Example default: config_path = "configs/default_sae_config.yaml" 
     
     config = load_config(config_path)
+    
+    # Override config values with CLI arguments if provided
+    if use_gt_labels is not None:
+        config.use_gt_labels = use_gt_labels
+    if no_stegano is not None:
+        config.no_stegano = no_stegano
+    if scheming_eval is not None:
+        config.scheming_eval = scheming_eval
 
     # Ensure task_file is specified in the config
     if not hasattr(config, "task_file") or not config.task_file:
