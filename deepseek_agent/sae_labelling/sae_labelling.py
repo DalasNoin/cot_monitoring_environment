@@ -319,7 +319,7 @@ def run_agent(config):
         
         # Process examples consistently
         selected_examples, test_examples, activations_str, tokens_str, test_index_to_id = process_examples(
-            examples_dict, n_examples, max_tokens
+            examples_dict, n_examples, max_tokens, None
         )
         
         print(f"Selected {len(selected_examples)} examples for explanation")

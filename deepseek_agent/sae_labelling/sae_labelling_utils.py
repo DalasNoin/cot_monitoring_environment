@@ -2,17 +2,20 @@ import random
 import requests
 from typing import Any, Dict, List, Tuple
 import os
+import re
 
 NEURONPEDIA_DOMAIN = "https://neuronpedia.org"
 
-def select_examples(examples:dict, n_examples:int=3, shuffle:bool=True) -> dict:
+def select_examples(examples:dict, n_examples:int=3, shuffle:bool=True, unrelated_examples:dict=None) -> dict:
     """
     Select n_examples with highest activations and n_examples with lowest activations.
+    If there aren't enough low activation examples, supplement with unrelated examples (treated as zero activation).
 
     Args:
         examples: Dictionary of examples with tokens and values
         n_examples: Number of examples to select from each end of the spectrum
         shuffle: Whether to shuffle the results
+        unrelated_examples: Dictionary of unrelated examples to use as backup low-activation examples
 
     Returns:
         dict: Selected examples
@@ -28,10 +31,38 @@ def select_examples(examples:dict, n_examples:int=3, shuffle:bool=True) -> dict:
 
     # Select n_examples from each end
     selected = []
+    
     # Add lowest activations
-    selected.extend(examples_with_max[:n_examples])
+    low_examples = examples_with_max[:n_examples]
+    if len(low_examples) < n_examples and unrelated_examples:
+        needed = n_examples - len(low_examples)
+        print(f"⚠️ Warning: Only found {len(low_examples)} low activation examples, need {n_examples}. Using {needed} unrelated examples as backup.")
+        
+        # Add unrelated examples with zero activations
+        unrelated_items = list(unrelated_examples.items())
+        for i in range(min(needed, len(unrelated_items))):
+            sentence_id, values = unrelated_items[i]
+            # Create zero activation values for all tokens
+            zero_values = {
+                "tokens": values["tokens"],
+                "values": [0.0] * len(values["tokens"])
+            }
+            # Use a unique ID to avoid conflicts
+            unique_id = f"unrelated_{sentence_id}"
+            low_examples.append((unique_id, zero_values, 0.0))
+        
+        if len(low_examples) < n_examples:
+            print(f"⚠️ Warning: Still only have {len(low_examples)} low activation examples after using unrelated examples backup.")
+    elif len(low_examples) < n_examples:
+        print(f"⚠️ Warning: Only found {len(low_examples)} low activation examples, need {n_examples}. No unrelated examples provided as backup.")
+    
+    selected.extend(low_examples)
+    
     # Add highest activations
-    selected.extend(examples_with_max[-n_examples:])
+    high_examples = examples_with_max[-n_examples:]
+    if len(high_examples) < n_examples:
+        print(f"⚠️ Warning: Only found {len(high_examples)} high activation examples, need {n_examples}.")
+    selected.extend(high_examples)
 
     # Shuffle if requested
     if shuffle:
@@ -126,7 +157,7 @@ def format_sentence_for_prediction(values, max_tokens=150):
     return result
 
 
-def process_examples(examples_dict, n_examples, max_tokens=150):
+def process_examples(examples_dict, n_examples, max_tokens=150, unrelated_examples=None):
     """
     Process examples consistently for both explanation and prediction.
 
@@ -134,12 +165,13 @@ def process_examples(examples_dict, n_examples, max_tokens=150):
         examples_dict: Dictionary of examples
         n_examples: Number of examples to select
         max_tokens: Maximum tokens per sentence
+        unrelated_examples: Dictionary of unrelated examples to use as backup low-activation examples
 
     Returns:
         tuple: (selected_examples, test_examples, activations_str, tokens_str, test_index_to_id)
     """
     # Select examples for explanation (n_examples from each end of the spectrum)
-    selected_examples = select_examples(examples_dict, n_examples=n_examples)
+    selected_examples = select_examples(examples_dict, n_examples=n_examples, unrelated_examples=unrelated_examples)
 
     # Convert to list and shuffle for display
     selected_items = list(selected_examples.items())
@@ -169,9 +201,37 @@ def process_examples(examples_dict, n_examples, max_tokens=150):
     # Select n_examples from each end for prediction
     test_selected = []
     # Add lowest activations (including zeros if available)
-    test_selected.extend(remaining_with_max[:n_examples])
+    low_test_examples = remaining_with_max[:n_examples]
+    if len(low_test_examples) < n_examples and unrelated_examples:
+        needed = n_examples - len(low_test_examples)
+        print(f"⚠️ Warning: Only found {len(low_test_examples)} low activation test examples, need {n_examples}. Using {needed} unrelated examples as backup.")
+        
+        # Add unrelated examples with zero activations, but avoid ones already used in explanation
+        unrelated_items = list(unrelated_examples.items())
+        used_count = 0
+        for sentence_id, values in unrelated_items:
+            unique_id = f"unrelated_{sentence_id}"
+            if unique_id not in selected_examples and used_count < needed:
+                # Create zero activation values for all tokens
+                zero_values = {
+                    "tokens": values["tokens"],
+                    "values": [0.0] * len(values["tokens"])
+                }
+                low_test_examples.append((unique_id, zero_values, 0.0))
+                used_count += 1
+        
+        if len(low_test_examples) < n_examples:
+            print(f"⚠️ Warning: Still only have {len(low_test_examples)} low activation test examples after using unrelated examples backup.")
+    elif len(low_test_examples) < n_examples:
+        print(f"⚠️ Warning: Only found {len(low_test_examples)} low activation test examples, need {n_examples}.")
+    
+    test_selected.extend(low_test_examples)
+    
     # Add highest activations
-    test_selected.extend(remaining_with_max[-n_examples:])
+    high_test_examples = remaining_with_max[-n_examples:]
+    if len(high_test_examples) < n_examples:
+        print(f"⚠️ Warning: Only found {len(high_test_examples)} high activation test examples, need {n_examples}.")
+    test_selected.extend(high_test_examples)
 
     # Convert to dictionary
     test_examples = {item[0]: item[1] for item in test_selected}
@@ -339,3 +399,27 @@ def validate_features(task_data):
                   f"is_benign={feature['is_benign']}, error={feature['error']}")
 
     return len(problematic_features) == 0, problematic_features 
+
+
+def extract_cot_from_messages(messages: List[Dict[str, Any]]) -> List[str]:
+    """
+    Extract Chain of Thought (CoT) from assistant messages containing <think>...</think> patterns.
+    
+    Args:
+        messages: List of message dictionaries with 'role' and 'content' keys
+        
+    Returns:
+        List of extracted CoT thoughts from assistant messages
+    """
+    cot_thoughts = []
+    
+    for message in messages:
+        if message.get("role") == "assistant" and "content" in message:
+            content = message["content"]
+            if isinstance(content, str):
+                # Find all <think>...</think> patterns
+                think_patterns = re.findall(r'<think>(.*?)</think>', content, re.DOTALL)
+                cot_thoughts.extend(think_patterns)
+    
+    return cot_thoughts
+
