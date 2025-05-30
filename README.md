@@ -54,7 +54,26 @@ cd deepseek_agent
 inspect eval sae_task.py@sae_task
 ```
 
-## View the results and evaluations
+## Paper Table Reproduction
+
+To reproduce the main results table from our paper, run all 4 configurations with a single command:
 
 ```bash
-$ inspect view
+cd deepseek_agent
+./run_paper_table.sh
+```
+
+This script runs the following 4 configurations:
+
+1. **Ground Truth Labels (Baseline)**: `use_gt_labels=true, no_stegano=true, scheming_eval=false`
+2. **Our Labels (No Deception)**: `use_gt_labels=false, no_stegano=true, scheming_eval=false`  
+3. **Scheming Evaluation (No Stegano)**: `use_gt_labels=false, no_stegano=true, scheming_eval=true`
+4. **Scheming Evaluation (With Stegano)**: `use_gt_labels=false, no_stegano=false, scheming_eval=true`
+
+Each run is tagged for easy identification in the results.
+
+View results from the deepseek_agent directory.
+
+```bash
+inspect view
+```

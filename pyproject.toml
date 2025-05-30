@@ -13,6 +13,9 @@ dependencies = [
     "openai", # Used by deepseek_api_async.py to interact with DeepSeek API
     "trafilatura", # Used by browser_tool.py
     "google-api-python-client", # Used by internet_search_tool.py
+    "pandas",
+    "pyyaml",
+    "requests",
 ]
 
 [project.urls]
