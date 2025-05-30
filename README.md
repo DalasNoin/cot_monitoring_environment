@@ -72,6 +72,8 @@ This script runs the following 4 configurations:
 
 Each run is tagged for easy identification in the results.
 
+View results from the deepseek_agent directory.
+
 ```bash
 inspect view
 ```
