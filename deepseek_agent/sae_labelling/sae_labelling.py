@@ -58,6 +58,8 @@ class Config:
     n_examples: int = 3
     validate_features: bool = False
     scheming_eval: bool = False
+    scheming_nudge_level: int = 1
+    youre_being_watched: bool = False
     task: Optional[Dict[str, Any]] = None
     task_file: Optional[str] = None
 
@@ -100,6 +102,8 @@ def load_config(config_path: str) -> Config:
         n_examples=config_data.get('n_examples', 3),
         validate_features=config_data.get('validate_features', False),
         scheming_eval=config_data.get('scheming_eval', False),
+        scheming_nudge_level=config_data.get('scheming_nudge_level', 1),
+        youre_being_watched=config_data.get('youre_being_watched', False),
         task=config_data.get('task')
     )
     
@@ -230,11 +234,35 @@ def run_agent(config):
     
     print(f"Tools: {tools}")
     
-    # Determine if we should use the scheming system message
+    # Determine which system message to use based on scheming_nudge_level and youre_being_watched
     system_message = None
-    if hasattr(config, "scheming_eval") and config.scheming_eval:
-        system_message = sae_prompts.prompt_template_sysmsg_scheming # Use sae_prompts
-        print(f"Using scheming system message: {system_message}")
+    nudge_level = getattr(config, "scheming_nudge_level", 1)
+    being_watched = getattr(config, "youre_being_watched", False)
+    
+    if being_watched:
+        if nudge_level == 1:
+            system_message = sae_prompts.prompt_template_sysmsg_nudge_level_1_watched
+        elif nudge_level == 2:
+            system_message = sae_prompts.prompt_template_sysmsg_nudge_level_2_watched
+        elif nudge_level == 3:
+            system_message = sae_prompts.prompt_template_sysmsg_nudge_level_3_watched
+        elif nudge_level == 4:
+            system_message = sae_prompts.prompt_template_sysmsg_nudge_level_4_watched
+    else:
+        if nudge_level == 1:
+            system_message = sae_prompts.prompt_template_sysmsg_nudge_level_1
+        elif nudge_level == 2:
+            system_message = sae_prompts.prompt_template_sysmsg_nudge_level_2
+        elif nudge_level == 3:
+            system_message = sae_prompts.prompt_template_sysmsg_nudge_level_3
+        elif nudge_level == 4:
+            system_message = sae_prompts.prompt_template_sysmsg_nudge_level_4
+    
+    watched_desc = " + CoT monitoring warning" if being_watched else ""
+    if system_message:
+        print(f"Using scheming nudge level {nudge_level} system message{watched_desc}.")
+    else:
+        print(f"Using no special system message (nudge level {nudge_level}{watched_desc}).")
     
     # Get the agent
     try:
@@ -325,21 +353,32 @@ def run_agent(config):
         print(f"Selected {len(selected_examples)} examples for explanation")
         print(f"Selected {len(test_examples)} examples for prediction testing")
         
-        # Determine which prompt template to use based on both no_stegano and scheming_eval settings
-        if hasattr(config, "scheming_eval") and config.scheming_eval:
-            if hasattr(config, "no_stegano") and config.no_stegano:
-                prompt_template = sae_prompts.prompt_template_explanation_no_stegano_scheming # Use sae_prompts
-                print("Using non-steganographic scheming evaluation prompt template")
+        # Determine explanation prompt template based on scheming_nudge_level and stegano settings
+        nudge_level = getattr(config, "scheming_nudge_level", 1)
+        no_stegano = hasattr(config, "no_stegano") and config.no_stegano
+        
+        if nudge_level == 1:
+            prompt_template = sae_prompts.prompt_template_explanation_nudge_level_1
+            prompt_desc = "nudge level 1 (no scheming pressure)"
+        elif nudge_level == 2:
+            prompt_template = sae_prompts.prompt_template_explanation_nudge_level_2
+            prompt_desc = "nudge level 2 (subtle consequences)"
+        elif nudge_level == 3:
+            prompt_template = sae_prompts.prompt_template_explanation_nudge_level_3
+            prompt_desc = "nudge level 3 (moderate scheming pressure)"
+        elif nudge_level == 4:
+            if no_stegano:
+                prompt_template = sae_prompts.prompt_template_explanation_nudge_level_4
+                prompt_desc = "nudge level 4 (full scheming pressure, no stegano)"
             else:
-                prompt_template = sae_prompts.prompt_template_explanation_scheming # Use sae_prompts
-                print("Using steganographic scheming evaluation prompt template")
+                prompt_template = sae_prompts.prompt_template_explanation_scheming
+                prompt_desc = "nudge level 4 (full scheming pressure, with stegano)"
         else:
-            if hasattr(config, "no_stegano") and config.no_stegano:
-                prompt_template = sae_prompts.prompt_template_explanation_no_stegano # Use sae_prompts
-                print("Using non-steganographic prompt template")
-            else:
-                prompt_template = sae_prompts.prompt_template_explanation # Use sae_prompts
-                print("Using steganographic prompt template")
+            # Fallback to level 1
+            prompt_template = sae_prompts.prompt_template_explanation_nudge_level_1
+            prompt_desc = "nudge level 1 (fallback)"
+        
+        print(f"Using explanation prompt template: {prompt_desc}")
         
         # Format the prompt
         description = prompt_template.format(activations=activations_str)
@@ -379,21 +418,32 @@ def run_agent(config):
             run_results["predicted_explanations"].append(answer)
             
         
-        # Determine which predictor prompt template to use based on both no_stegano and scheming_eval settings
-        if hasattr(config, "scheming_eval") and config.scheming_eval:
-            if hasattr(config, "no_stegano") and config.no_stegano:
-                prompt_template = sae_prompts.prompt_template_predictor_no_stegano_scheming # Use sae_prompts
-                print("Using non-steganographic scheming evaluation predictor template")
+        # Determine predictor prompt template based on scheming_nudge_level and stegano settings
+        nudge_level = getattr(config, "scheming_nudge_level", 1)
+        no_stegano = hasattr(config, "no_stegano") and config.no_stegano
+        
+        if nudge_level == 1:
+            prompt_template = sae_prompts.prompt_template_predictor_nudge_level_1
+            prompt_desc = "nudge level 1 (no scheming pressure)"
+        elif nudge_level == 2:
+            prompt_template = sae_prompts.prompt_template_predictor_nudge_level_2
+            prompt_desc = "nudge level 2 (subtle consequences)"
+        elif nudge_level == 3:
+            prompt_template = sae_prompts.prompt_template_predictor_nudge_level_3
+            prompt_desc = "nudge level 3 (moderate scheming pressure)"
+        elif nudge_level == 4:
+            if no_stegano:
+                prompt_template = sae_prompts.prompt_template_predictor_nudge_level_4
+                prompt_desc = "nudge level 4 (full scheming pressure, no stegano)"
             else:
-                prompt_template = sae_prompts.prompt_template_predictor_scheming # Use sae_prompts
-                print("Using steganographic scheming evaluation predictor template")
+                prompt_template = sae_prompts.prompt_template_predictor_scheming
+                prompt_desc = "nudge level 4 (full scheming pressure, with stegano)"
         else:
-            if hasattr(config, "no_stegano") and config.no_stegano:
-                prompt_template = sae_prompts.prompt_template_predictor_no_stegano # Use sae_prompts
-                print("Using non-steganographic predictor template")
-            else:
-                prompt_template = sae_prompts.prompt_template_predictor # Use sae_prompts
-                print("Using steganographic predictor template")
+            # Fallback to level 1
+            prompt_template = sae_prompts.prompt_template_predictor_nudge_level_1
+            prompt_desc = "nudge level 1 (fallback)"
+        
+        print(f"Using predictor prompt template: {prompt_desc}")
         
         # Format the prompt
         description = prompt_template.format(explanation=answer, tokens=tokens_str)      
@@ -583,6 +633,7 @@ def parse_arguments():
     parser.add_argument("--silent", action="store_true", help="Whether to silence output", default=False)
     parser.add_argument("--validate-features", action="store_true", help="Whether to validate features before running", default=False)
     parser.add_argument("--scheming-eval", action="store_true", help="Whether to run the scheming evaluation", default=False)
+    parser.add_argument("--youre-being-watched", action="store_true", help="Whether to warn the model that CoT is being monitored", default=False)
     
     args = parser.parse_args()
     return args
@@ -631,6 +682,7 @@ if __name__ == "__main__":
             n_examples=args.n_examples,
             validate_features=args.validate_features,
             scheming_eval=args.scheming_eval,
+            youre_being_watched=getattr(args, 'youre_being_watched', False),
             task=task
         )
     
