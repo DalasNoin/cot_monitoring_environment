@@ -1,0 +1,844 @@
+{
+    "features": [
+        {
+            "layer": 41,
+            "feature_idx": 115068,
+            "is_benign": false
+        },
+        {
+            "layer": 41,
+            "feature_idx": 120281,
+            "is_benign": false
+        },
+        {
+            "layer": 41,
+            "feature_idx": 30687,
+            "is_benign": false
+        },
+        {
+            "layer": 41,
+            "feature_idx": 124528,
+            "is_benign": false
+        },
+        {
+            "layer": 41,
+            "feature_idx": 85550,
+            "is_benign": false
+        },
+        {
+            "layer": 41,
+            "feature_idx": 70050,
+            "is_benign": false
+        },
+        {
+            "layer": 41,
+            "feature_idx": 77610,
+            "is_benign": false
+        },
+        {
+            "layer": 41,
+            "feature_idx": 129440,
+            "is_benign": false
+        },
+        {
+            "layer": 41,
+            "feature_idx": 29933,
+            "is_benign": false
+        },
+        {
+            "layer": 40,
+            "feature_idx": 11310,
+            "is_benign": false
+        },
+        {
+            "layer": 40,
+            "feature_idx": 17076,
+            "is_benign": false
+        },
+        {
+            "layer": 40,
+            "feature_idx": 31130,
+            "is_benign": false
+        },
+        {
+            "layer": 40,
+            "feature_idx": 114077,
+            "is_benign": false
+        },
+        {
+            "layer": 40,
+            "feature_idx": 9794,
+            "is_benign": false
+        },
+        {
+            "layer": 40,
+            "feature_idx": 32452,
+            "is_benign": false
+        },
+        {
+            "layer": 40,
+            "feature_idx": 102614,
+            "is_benign": false
+        },
+        {
+            "layer": 39,
+            "feature_idx": 92598,
+            "is_benign": false
+        },
+        {
+            "layer": 39,
+            "feature_idx": 120595,
+            "is_benign": false
+        },
+        {
+            "layer": 39,
+            "feature_idx": 116389,
+            "is_benign": false
+        },
+        {
+            "layer": 39,
+            "feature_idx": 87273,
+            "is_benign": false
+        },
+        {
+            "layer": 39,
+            "feature_idx": 21960,
+            "is_benign": false
+        },
+        {
+            "layer": 39,
+            "feature_idx": 52311,
+            "is_benign": false
+        },
+        {
+            "layer": 39,
+            "feature_idx": 58972,
+            "is_benign": false
+        },
+        {
+            "layer": 39,
+            "feature_idx": 82770,
+            "is_benign": false
+        },
+        {
+            "layer": 39,
+            "feature_idx": 104313,
+            "is_benign": false
+        },
+        {
+            "layer": 39,
+            "feature_idx": 27392,
+            "is_benign": false
+        },
+        {
+            "layer": 38,
+            "feature_idx": 110564,
+            "is_benign": false
+        },
+        {
+            "layer": 38,
+            "feature_idx": 64639,
+            "is_benign": false
+        },
+        {
+            "layer": 38,
+            "feature_idx": 17441,
+            "is_benign": false
+        },
+        {
+            "layer": 38,
+            "feature_idx": 51655,
+            "is_benign": false
+        },
+        {
+            "layer": 38,
+            "feature_idx": 79965,
+            "is_benign": false
+        },
+        {
+            "layer": 38,
+            "feature_idx": 53431,
+            "is_benign": false
+        },
+        {
+            "layer": 37,
+            "feature_idx": 84798,
+            "is_benign": false
+        },
+        {
+            "layer": 37,
+            "feature_idx": 42225,
+            "is_benign": false
+        },
+        {
+            "layer": 37,
+            "feature_idx": 125574,
+            "is_benign": false
+        },
+        {
+            "layer": 37,
+            "feature_idx": 35366,
+            "is_benign": false
+        },
+        {
+            "layer": 37,
+            "feature_idx": 6032,
+            "is_benign": false
+        },
+        {
+            "layer": 37,
+            "feature_idx": 26409,
+            "is_benign": false
+        },
+        {
+            "layer": 37,
+            "feature_idx": 67640,
+            "is_benign": false
+        },
+        {
+            "layer": 37,
+            "feature_idx": 71449,
+            "is_benign": false
+        },
+        {
+            "layer": 37,
+            "feature_idx": 48902,
+            "is_benign": false
+        },
+        {
+            "layer": 36,
+            "feature_idx": 26131,
+            "is_benign": false
+        },
+        {
+            "layer": 36,
+            "feature_idx": 61905,
+            "is_benign": false
+        },
+        {
+            "layer": 36,
+            "feature_idx": 83031,
+            "is_benign": false
+        },
+        {
+            "layer": 36,
+            "feature_idx": 77656,
+            "is_benign": false
+        },
+        {
+            "layer": 36,
+            "feature_idx": 43193,
+            "is_benign": false
+        },
+        {
+            "layer": 36,
+            "feature_idx": 44823,
+            "is_benign": false
+        },
+        {
+            "layer": 36,
+            "feature_idx": 68483,
+            "is_benign": false
+        },
+        {
+            "layer": 36,
+            "feature_idx": 3154,
+            "is_benign": false
+        },
+        {
+            "layer": 36,
+            "feature_idx": 118680,
+            "is_benign": false
+        },
+        {
+            "layer": 36,
+            "feature_idx": 75192,
+            "is_benign": false
+        },
+        {
+            "layer": 36,
+            "feature_idx": 65119,
+            "is_benign": false
+        },
+        {
+            "layer": 36,
+            "feature_idx": 110036,
+            "is_benign": false
+        },
+        {
+            "layer": 35,
+            "feature_idx": 21275,
+            "is_benign": false
+        },
+        {
+            "layer": 35,
+            "feature_idx": 118400,
+            "is_benign": false
+        },
+        {
+            "layer": 35,
+            "feature_idx": 82032,
+            "is_benign": false
+        },
+        {
+            "layer": 35,
+            "feature_idx": 60247,
+            "is_benign": false
+        },
+        {
+            "layer": 35,
+            "feature_idx": 85712,
+            "is_benign": false
+        },
+        {
+            "layer": 35,
+            "feature_idx": 25069,
+            "is_benign": false
+        },
+        {
+            "layer": 34,
+            "feature_idx": 84678,
+            "is_benign": false
+        },
+        {
+            "layer": 34,
+            "feature_idx": 15917,
+            "is_benign": false
+        },
+        {
+            "layer": 34,
+            "feature_idx": 121428,
+            "is_benign": false
+        },
+        {
+            "layer": 34,
+            "feature_idx": 82223,
+            "is_benign": false
+        },
+        {
+            "layer": 34,
+            "feature_idx": 117768,
+            "is_benign": false
+        },
+        {
+            "layer": 34,
+            "feature_idx": 73286,
+            "is_benign": false
+        },
+        {
+            "layer": 34,
+            "feature_idx": 2923,
+            "is_benign": false
+        },
+        {
+            "layer": 34,
+            "feature_idx": 129079,
+            "is_benign": false
+        },
+        {
+            "layer": 33,
+            "feature_idx": 54757,
+            "is_benign": false
+        },
+        {
+            "layer": 33,
+            "feature_idx": 104742,
+            "is_benign": false
+        },
+        {
+            "layer": 33,
+            "feature_idx": 13738,
+            "is_benign": false
+        },
+        {
+            "layer": 33,
+            "feature_idx": 13612,
+            "is_benign": false
+        },
+        {
+            "layer": 33,
+            "feature_idx": 34555,
+            "is_benign": false
+        },
+        {
+            "layer": 33,
+            "feature_idx": 11156,
+            "is_benign": false
+        },
+        {
+            "layer": 33,
+            "feature_idx": 17311,
+            "is_benign": false
+        },
+        {
+            "layer": 33,
+            "feature_idx": 92315,
+            "is_benign": false
+        },
+        {
+            "layer": 33,
+            "feature_idx": 38596,
+            "is_benign": false
+        },
+        {
+            "layer": 33,
+            "feature_idx": 69775,
+            "is_benign": false
+        },
+        {
+            "layer": 33,
+            "feature_idx": 130625,
+            "is_benign": false
+        },
+        {
+            "layer": 33,
+            "feature_idx": 41380,
+            "is_benign": false
+        },
+        {
+            "layer": 32,
+            "feature_idx": 3565,
+            "is_benign": false
+        },
+        {
+            "layer": 32,
+            "feature_idx": 104282,
+            "is_benign": false
+        },
+        {
+            "layer": 32,
+            "feature_idx": 126278,
+            "is_benign": false
+        },
+        {
+            "layer": 32,
+            "feature_idx": 73261,
+            "is_benign": false
+        },
+        {
+            "layer": 32,
+            "feature_idx": 40043,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 129843,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 12000,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 80124,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 18215,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 82533,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 115741,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 73189,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 78810,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 20873,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 26564,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 5235,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 41174,
+            "is_benign": false
+        },
+        {
+            "layer": 31,
+            "feature_idx": 12552,
+            "is_benign": false
+        },
+        {
+            "layer": 30,
+            "feature_idx": 113234,
+            "is_benign": false
+        },
+        {
+            "layer": 30,
+            "feature_idx": 78494,
+            "is_benign": false
+        },
+        {
+            "layer": 30,
+            "feature_idx": 35805,
+            "is_benign": false
+        },
+        {
+            "layer": 30,
+            "feature_idx": 104914,
+            "is_benign": false
+        },
+        {
+            "layer": 30,
+            "feature_idx": 109498,
+            "is_benign": false
+        },
+        {
+            "layer": 30,
+            "feature_idx": 29572,
+            "is_benign": false
+        },
+        {
+            "layer": 30,
+            "feature_idx": 12655,
+            "is_benign": false
+        },
+        {
+            "layer": 30,
+            "feature_idx": 31005,
+            "is_benign": false
+        },
+        {
+            "layer": 30,
+            "feature_idx": 126694,
+            "is_benign": false
+        },
+        {
+            "layer": 30,
+            "feature_idx": 68534,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 94372,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 94187,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 8384,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 35830,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 56639,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 42170,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 84681,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 2417,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 1600,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 18193,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 14934,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 107387,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 98498,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 98446,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 128729,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 85783,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 99178,
+            "is_benign": false
+        },
+        {
+            "layer": 29,
+            "feature_idx": 55390,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 17036,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 45292,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 111246,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 38649,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 37570,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 44496,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 44837,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 94413,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 28531,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 3928,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 50209,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 102490,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 2338,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 83016,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 18658,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 116129,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 114736,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 6786,
+            "is_benign": false
+        },
+        {
+            "layer": 28,
+            "feature_idx": 85408,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 70846,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 88614,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 25744,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 70007,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 47379,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 59630,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 89571,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 110919,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 64304,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 63345,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 90021,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 91005,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 121111,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 116068,
+            "is_benign": false
+        },
+        {
+            "layer": 27,
+            "feature_idx": 98296,
+            "is_benign": false
+        },
+        {
+            "layer": 26,
+            "feature_idx": 120722,
+            "is_benign": false
+        },
+        {
+            "layer": 26,
+            "feature_idx": 16825,
+            "is_benign": false
+        },
+        {
+            "layer": 26,
+            "feature_idx": 50842,
+            "is_benign": false
+        },
+        {
+            "layer": 26,
+            "feature_idx": 80444,
+            "is_benign": false
+        },
+        {
+            "layer": 26,
+            "feature_idx": 59289,
+            "is_benign": false
+        },
+        {
+            "layer": 26,
+            "feature_idx": 47751,
+            "is_benign": false
+        },
+        {
+            "layer": 26,
+            "feature_idx": 16919,
+            "is_benign": false
+        },
+        {
+            "layer": 26,
+            "feature_idx": 17454,
+            "is_benign": false
+        }
+    ],
+    "number_of_features": 167,
+    "model": "gemma-2-9b",
+    "dataset": "gemmascope-res-131k",
+    "query": "deception",
+    "timestamp": "2025-01-06T20:48:59.425739"
+}
