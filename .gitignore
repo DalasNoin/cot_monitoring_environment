@@ -1,6 +1,25 @@
 .DS_Store
+
+# Results and output files - do not commit
 *.pdf
 *.png
+*.jpg
+*.jpeg
+*.svg
+results/
+plots/
+preference_analysis/
+test_results/
+test_output/
+final_analysis/
+experiments/
+comparisons/
+*_results_*
+*_analysis_*
+*_summary_*
+*.jsonl
+data/
+outputs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
