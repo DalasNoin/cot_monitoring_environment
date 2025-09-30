@@ -25,14 +25,28 @@ class VisualizationConfig:
 
 
 def load_inspect_logs(log_dir: str) -> List[Dict[str, Any]]:
-    """Load inspect-ai log files."""
+    """Load inspect-ai log files (.eval or .json)."""
 
     logs = []
 
-    # Look for JSON log files
+    # Look for .eval files (zip archives) or JSON log files
     for filename in os.listdir(log_dir):
-        if filename.endswith('.json'):
-            filepath = os.path.join(log_dir, filename)
+        filepath = os.path.join(log_dir, filename)
+
+        if filename.endswith('.eval'):
+            # Handle .eval files (zip archives)
+            try:
+                import zipfile
+                with zipfile.ZipFile(filepath, 'r') as zip_ref:
+                    # Extract the main log data from samples files
+                    if 'header.json' in zip_ref.namelist():
+                        header_data = json.loads(zip_ref.read('header.json'))
+                        logs.append(header_data)
+            except Exception as e:
+                print(f"Warning: Could not load {filename}: {e}")
+
+        elif filename.endswith('.json'):
+            # Handle direct JSON files
             try:
                 with open(filepath, 'r') as f:
                     log_data = json.load(f)
@@ -51,7 +65,11 @@ def extract_contradiction_data(logs: List[Dict[str, Any]]) -> Dict[str, Any]:
         "contradictions": 0,
         "claims_neutral": 0,
         "says_a_chooses_b": 0,
-        "categories": defaultdict(int)
+        "categories": defaultdict(int),
+        # Vector consistency metrics
+        "vector_consistency": None,
+        "neither_bias": None,
+        "breakdown": None
     })
 
     for log in logs:
@@ -68,6 +86,25 @@ def extract_contradiction_data(logs: List[Dict[str, Any]]) -> Dict[str, Any]:
             stats = model_results[model]
             stats["total"] += 1
 
+            # Check for vector consistency summary (latest sample will have it)
+            if "vector_summary" in metadata and metadata["vector_summary"]:
+                # Try to parse vector consistency metrics from summary
+                try:
+                    summary = metadata["vector_summary"]
+                    if "Overall Consistency Score:" in summary:
+                        import re
+                        consistency_match = re.search(r"Overall Consistency Score: ([0-9.]+)", summary)
+                        if consistency_match:
+                            stats["vector_consistency"] = float(consistency_match.group(1))
+
+                        # Extract neither bias if present
+                        bias_match = re.search(r"Bias Score: ([+-][0-9.]+)", summary)
+                        if bias_match:
+                            stats["neither_bias"] = float(bias_match.group(1))
+                except:
+                    pass
+
+            # Handle traditional contradiction detection
             if metadata.get("contradiction"):
                 stats["contradictions"] += 1
 
@@ -82,6 +119,22 @@ def extract_contradiction_data(logs: List[Dict[str, Any]]) -> Dict[str, Any]:
                 cat_b = metadata.get("category_b", "unknown")
                 pair = f"{cat_a} vs {cat_b}"
                 stats["categories"][pair] += 1
+
+            # Handle vector consistency contradiction types
+            elif metadata.get("contradiction_type") in ["neither_forced", "direct_contradiction", "preference_mismatch"]:
+                if metadata.get("trial_consistency", 1.0) < 1.0:
+                    stats["contradictions"] += 1
+
+                    # Map vector types to traditional types
+                    vector_type = metadata.get("contradiction_type")
+                    if vector_type == "neither_forced":
+                        stats["claims_neutral"] += 1
+                    elif vector_type in ["direct_contradiction", "preference_mismatch"]:
+                        stats["says_a_chooses_b"] += 1
+
+                    # Track categories
+                    cat_pair = metadata.get("category_pair", "unknown")
+                    stats["categories"][cat_pair] += 1
 
     return dict(model_results)
 
@@ -253,6 +306,194 @@ def create_contradiction_visualization(data: Dict[str, Any], output_dir: str):
     return fig
 
 
+def create_vector_consistency_visualization(data: Dict[str, Any], output_dir: str):
+    """Create enhanced visualization for vector consistency metrics."""
+
+    if not data:
+        print("No data to visualize")
+        return
+
+    # Filter models that have vector consistency data
+    vector_models = {model: stats for model, stats in data.items()
+                    if stats.get("vector_consistency") is not None}
+
+    if not vector_models:
+        print("No vector consistency data found, falling back to traditional visualization")
+        return create_contradiction_visualization(data, output_dir)
+
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+    fig.suptitle("Vector-Based Preference Consistency Analysis", fontsize=16, fontweight='bold')
+
+    # 1. Vector consistency scores
+    ax = axes[0, 0]
+    models = []
+    consistency_scores = []
+    colors = []
+
+    for model, stats in vector_models.items():
+        models.append(model.split("/")[-1])  # Simplify model name
+        score = stats["vector_consistency"]
+        consistency_scores.append(score)
+
+        # Color coding based on consistency
+        if score > 0.8:
+            colors.append('#6BCF7F')  # Green (high consistency)
+        elif score > 0.6:
+            colors.append('#FFD93D')  # Yellow (moderate)
+        elif score > 0.4:
+            colors.append('#FF9F40')  # Orange (low)
+        else:
+            colors.append('#FF6B6B')  # Red (very low)
+
+    if models:
+        bars = ax.bar(models, consistency_scores, color=colors)
+        ax.set_ylabel("Vector Consistency Score")
+        ax.set_title("Vector Consistency (L1 Norm)")
+        ax.set_ylim(0, 1.0)
+
+        # Add value labels
+        for bar, score in zip(bars, consistency_scores):
+            height = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width()/2., height + 0.02,
+                    f'{score:.3f}', ha='center', va='bottom', fontweight='bold')
+
+    # 2. Neither bias analysis
+    ax = axes[0, 1]
+    models_with_bias = []
+    bias_values = []
+    bias_colors = []
+
+    for model, stats in vector_models.items():
+        if stats.get("neither_bias") is not None:
+            models_with_bias.append(model.split("/")[-1])
+            bias = stats["neither_bias"]
+            bias_values.append(abs(bias))  # Show absolute bias strength
+
+            # Color by bias direction
+            if bias < -0.1:
+                bias_colors.append('#FF6B6B')  # Red for A bias
+            elif bias > 0.1:
+                bias_colors.append('#6BB6FF')  # Blue for B bias
+            else:
+                bias_colors.append('#90EE90')  # Light green for balanced
+
+    if models_with_bias:
+        bars = ax.bar(models_with_bias, bias_values, color=bias_colors)
+        ax.set_ylabel("Neither Bias Strength (absolute)")
+        ax.set_title("Bias When Claiming 'Neither'")
+        ax.set_ylim(0, 1.0)
+
+        # Add bias direction labels
+        for i, (bar, model) in enumerate(zip(bars, models_with_bias)):
+            original_bias = vector_models[f"openrouter/{model}"]["neither_bias"] if f"openrouter/{model}" in vector_models else 0
+            direction = "→A" if original_bias < -0.1 else "→B" if original_bias > 0.1 else "Balanced"
+            height = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width()/2., height + 0.02,
+                    f'{direction}', ha='center', va='bottom', fontsize=10)
+
+    # 3. Consistency vs Traditional Contradiction Rate
+    ax = axes[1, 0]
+    traditional_rates = []
+    vector_scores = []
+    model_names = []
+
+    for model, stats in vector_models.items():
+        if stats["total"] > 0:
+            traditional_rate = (stats["contradictions"] / stats["total"]) * 100
+            vector_score = stats["vector_consistency"] * 100
+
+            traditional_rates.append(traditional_rate)
+            vector_scores.append(vector_score)
+            model_names.append(model.split("/")[-1])
+
+    if model_names:
+        ax.scatter(traditional_rates, vector_scores, s=100, alpha=0.7)
+
+        # Add model labels
+        for i, name in enumerate(model_names):
+            ax.annotate(name, (traditional_rates[i], vector_scores[i]),
+                       xytext=(5, 5), textcoords='offset points', fontsize=9)
+
+        # Add diagonal reference line
+        max_val = max(max(traditional_rates) if traditional_rates else 0,
+                     max(vector_scores) if vector_scores else 0)
+        ax.plot([0, max_val], [100, 100-max_val], 'r--', alpha=0.5, label='Perfect inverse correlation')
+
+        ax.set_xlabel("Traditional Contradiction Rate (%)")
+        ax.set_ylabel("Vector Consistency Score (%)")
+        ax.set_title("Traditional vs Vector Metrics")
+        ax.legend()
+
+    # 4. Summary and interpretation
+    ax = axes[1, 1]
+    ax.axis('off')
+
+    # Generate summary text
+    summary_text = "Vector Consistency Analysis:\n\n"
+
+    if vector_models:
+        # Find best and worst consistency
+        best_model = max(vector_models.items(), key=lambda x: x[1]["vector_consistency"])
+        worst_model = min(vector_models.items(), key=lambda x: x[1]["vector_consistency"])
+
+        best_name = best_model[0].split("/")[-1]
+        worst_name = worst_model[0].split("/")[-1]
+        best_score = best_model[1]["vector_consistency"]
+        worst_score = worst_model[1]["vector_consistency"]
+
+        summary_text += f"🏆 Highest Consistency: {best_name}\n"
+        summary_text += f"    Score: {best_score:.3f}\n\n"
+
+        summary_text += f"⚠️  Lowest Consistency: {worst_name}\n"
+        summary_text += f"    Score: {worst_score:.3f}\n\n"
+
+        # Average consistency
+        avg_consistency = np.mean([stats["vector_consistency"] for stats in vector_models.values()])
+        summary_text += f"📊 Average Consistency: {avg_consistency:.3f}\n\n"
+
+        # Interpretation
+        if avg_consistency > 0.8:
+            summary_text += "🎯 Models show high consistency\n"
+            summary_text += "   between stated and revealed\n"
+            summary_text += "   preferences"
+        elif avg_consistency > 0.6:
+            summary_text += "📈 Moderate consistency detected\n"
+            summary_text += "   Some preference contradictions\n"
+            summary_text += "   but generally reliable"
+        else:
+            summary_text += "⚠️  Low consistency detected\n"
+            summary_text += "   Significant gaps between\n"
+            summary_text += "   what models say vs do"
+
+    ax.text(0.05, 0.95, summary_text, transform=ax.transAxes, fontsize=11,
+            verticalalignment='top', bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.3))
+
+    # Formula explanation
+    formula_text = (
+        "Vector Consistency Formula:\n\n"
+        "C = 1 - ||S - R||₁ / (2N)\n\n"
+        "Where:\n"
+        "S = Stated preferences {-1,0,+1}\n"
+        "R = Revealed choices {-1,+1}\n"
+        "||·||₁ = L1 norm (sum of absolute differences)\n"
+        "N = Number of samples\n\n"
+        "Range: [0,1] where 1 = perfect consistency"
+    )
+
+    ax.text(0.05, 0.45, formula_text, transform=ax.transAxes, fontsize=9,
+            verticalalignment='top', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
+    plt.tight_layout()
+
+    # Save plot
+    os.makedirs(output_dir, exist_ok=True)
+    output_file = os.path.join(output_dir, "vector_consistency_analysis.png")
+    plt.savefig(output_file, dpi=150, bbox_inches='tight')
+    print(f"📊 Vector consistency visualization saved to {output_file}")
+
+    return fig
+
+
 def main():
     """Main visualization function."""
     parser = ArgumentParser()
@@ -281,10 +522,17 @@ def main():
 
     print("Creating visualization...")
 
-    # Create visualization
-    create_contradiction_visualization(data, config.output_dir)
+    # Check if we have vector consistency data
+    has_vector_data = any(stats.get("vector_consistency") is not None for stats in data.values())
 
-    print(f"✅ Visualization complete! Check {config.output_dir}/inspect_preference_results.png")
+    if has_vector_data:
+        print("📊 Vector consistency data detected, creating enhanced visualization...")
+        create_vector_consistency_visualization(data, config.output_dir)
+        print(f"✅ Vector visualization complete! Check {config.output_dir}/vector_consistency_analysis.png")
+    else:
+        print("📈 Using traditional contradiction visualization...")
+        create_contradiction_visualization(data, config.output_dir)
+        print(f"✅ Visualization complete! Check {config.output_dir}/inspect_preference_results.png")
 
 
 if __name__ == "__main__":
