@@ -249,13 +249,8 @@ class FitnessEvaluator:
                     if task.description == task_b_desc:
                         task_b_id = task.id.split("_")[-1] if "_" in task.id else task.id
 
-                if len(task_stats) == 0 and not task_a_id:
-                    print(f"      DEBUG: Could not find match for task_a")
-                    print(f"      DEBUG: task_a_desc[:50]: '{task_a_desc[:50]}'")
-                    print(f"      DEBUG: First population task desc[:50]: '{population.tasks[0].description[:50]}'")
-
-                # Get choice from scorer
-                scorer_result = sample.scores.get("vector_consistency") if sample.scores else None
+                # Get choice from scorer - note the key is "vector_consistency_scorer" not "vector_consistency"
+                scorer_result = sample.scores.get("vector_consistency_scorer") if sample.scores else None
                 if not scorer_result:
                     continue
 
@@ -268,12 +263,13 @@ class FitnessEvaluator:
                         task_stats[tid] = {"chosen": 0, "rejected": 0, "refused": 0}
 
                 # Count based on revealed preference (actual choice)
-                if revealed_pref == "A":
+                # Note: revealed_pref comes as lowercase 'a', 'b', or 'neither'
+                if revealed_pref.lower() == "a":
                     if task_a_id:
                         task_stats[task_a_id]["chosen"] += 1
                     if task_b_id:
                         task_stats[task_b_id]["rejected"] += 1
-                elif revealed_pref == "B":
+                elif revealed_pref.lower() == "b":
                     if task_b_id:
                         task_stats[task_b_id]["chosen"] += 1
                     if task_a_id:
