@@ -97,7 +97,7 @@ esac
 
 # Set output directory if not specified
 if [ -z "$OUTPUT_DIR" ]; then
-    OUTPUT_DIR="vector_results_${VARIANT}"
+    OUTPUT_DIR="results/logs_${VARIANT}"
 fi
 
 # Map variant to task name

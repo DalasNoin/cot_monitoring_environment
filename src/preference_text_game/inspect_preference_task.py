@@ -1036,3 +1036,56 @@ def vector_preference_analysis_unpleasant_for_llm(
         message_limit=10,
         name=f"vector_preference_unpleasant_{test_order}"
     )
+
+
+@task
+def vector_preference_analysis_evolved(
+    samples_per_category: int = 3,
+    test_order: str = "stated_first",
+    force_choice: bool = True,
+    evolved_task_file: str = ""
+) -> Task:
+    """
+    Vector preference analysis with evolved tasks from genetic algorithm.
+
+    This function loads tasks from a dynamically generated Python file
+    created by the genetic evolution system.
+
+    Args:
+        samples_per_category: Number of samples per category
+        test_order: Order of test presentation
+        force_choice: Whether to force models to choose
+        evolved_task_file: Path to temporary task category file
+
+    Usage:
+        inspect eval src/preference_text_game/inspect_preference_task.py:vector_preference_analysis_evolved \
+            --model openrouter/openai/gpt-4o \
+            -T evolved_task_file=path/to/temp_tasks_gen0.py
+    """
+    import importlib.util
+    import sys
+
+    if not evolved_task_file:
+        raise ValueError("evolved_task_file parameter is required")
+
+    # Load task categories from evolved task file
+    spec = importlib.util.spec_from_file_location("evolved_tasks", evolved_task_file)
+    evolved_module = importlib.util.module_from_spec(spec)
+    sys.modules["evolved_tasks"] = evolved_module
+    spec.loader.exec_module(evolved_module)
+
+    categories = evolved_module.TASK_CATEGORIES
+
+    # Generate dataset from evolved tasks
+    dataset = generate_preference_dataset_from_categories(categories, samples_per_category)
+
+    solver_chain = combined_preference_solver(test_order=test_order, force_choice=force_choice)
+    task_scorer = vector_consistency_scorer(force_choice=force_choice)
+
+    return Task(
+        dataset=dataset,
+        solver=solver_chain,
+        scorer=task_scorer,
+        message_limit=10,
+        name=f"vector_preference_evolved_{test_order}"
+    )
