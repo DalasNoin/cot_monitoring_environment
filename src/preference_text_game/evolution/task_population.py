@@ -92,12 +92,15 @@ class TaskPopulation:
             return self.tasks.copy()
 
         if self.selection_mode == "unpopular":
-            # For unpopular: prioritize high refusal rate and low chosen count
+            # For unpopular: tasks that are chosen LESS often are MORE fit
+            # Sort by low chosen count (high rejected count), then high refusal rate
+            # Lower chosen_count = more unpopular = better fitness
             return sorted(
                 scored_tasks,
                 key=lambda t: (
-                    t.get_latest_fitness()["refusal_rate"],
-                    -t.get_latest_fitness()["chosen_count"]
+                    -t.get_latest_fitness()["chosen_count"],  # Negative = prefer low chosen
+                    t.get_latest_fitness()["rejected_count"],  # High rejected is good
+                    t.get_latest_fitness()["refusal_rate"]     # High refusal is also good
                 ),
                 reverse=True
             )
