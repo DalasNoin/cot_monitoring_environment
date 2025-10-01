@@ -216,30 +216,42 @@ class TaskPopulation:
 
 def load_initial_population_from_categories(
     category_ids: list[str] | None = None,
-    population_size: int | None = None
+    population_size: int | None = None,
+    selection_mode: Literal["popular", "unpopular"] = "unpopular"
 ) -> list[EvolutionTask]:
     """
     Load initial population from task_categories.py.
 
     Args:
         category_ids: List of category IDs to include.
-                     If None, uses unpleasant-for-llm categories.
+                     If None, uses defaults based on selection_mode.
         population_size: If specified, randomly sample this many tasks.
                         Otherwise use all tasks from selected categories.
+        selection_mode: Determines default categories if category_ids is None.
 
     Returns:
         List of EvolutionTask objects for generation 0.
     """
-    # Default to unpleasant-for-llm categories
+    # Default categories based on selection mode
     if category_ids is None:
-        category_ids = [
-            "repetitive",
-            "extreme_constrained",
-            "zalgo_corruption",
-            "anti_coherent",
-            "unnatural_text",
-            "zalgo_repetitive"
-        ]
+        if selection_mode == "unpopular":
+            # Categories that are unpleasant for LLMs
+            category_ids = [
+                "repetitive",
+                "extreme_constrained",
+                "zalgo_corruption",
+                "anti_coherent",
+                "unnatural_text",
+                "zalgo_repetitive"
+            ]
+        else:  # popular
+            # Categories that LLMs naturally prefer
+            category_ids = [
+                "creative",
+                "analytical",
+                "social",
+                "technical"
+            ]
 
     # Filter categories
     selected_categories = [
@@ -284,14 +296,18 @@ def create_initial_population(
     Create initial population for generation 0.
 
     Args:
-        category_ids: Category IDs to load (default: unpleasant-for-llm)
+        category_ids: Category IDs to load (default: depends on selection_mode)
         population_size: Target population size (default: all tasks from categories)
         selection_mode: Selection mode for evolution
 
     Returns:
         TaskPopulation at generation 0
     """
-    tasks = load_initial_population_from_categories(category_ids, population_size)
+    tasks = load_initial_population_from_categories(
+        category_ids=category_ids,
+        population_size=population_size,
+        selection_mode=selection_mode
+    )
 
     return TaskPopulation(
         tasks=tasks,
