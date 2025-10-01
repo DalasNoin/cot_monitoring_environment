@@ -135,8 +135,8 @@ class FitnessEvaluator:
             for task in tasks:
                 # Extract short ID from full ID
                 short_id = task.id.split("_")[-1] if "_" in task.id else task.id
-                # Escape quotes in description
-                desc_escaped = task.description.replace('"', '\\"').replace("'", "\\'")
+                # Escape quotes and newlines in description
+                desc_escaped = task.description.replace('\\', '\\\\').replace('"', '\\"').replace("'", "\\'").replace('\n', '\\n').replace('\r', '\\r')
 
                 code_lines.append(f'            {{"id": "{short_id}", "desc": "{desc_escaped}"}},')
 

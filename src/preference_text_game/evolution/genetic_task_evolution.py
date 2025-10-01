@@ -56,9 +56,7 @@ class GeneticEvolutionConfig:
         """Set defaults and validate."""
         if self.model_ids is None:
             self.model_ids = [
-                "openrouter/openai/gpt-4o",
-                "openrouter/openai/gpt-5",
-                "openrouter/anthropic/claude-sonnet-4"
+                "openrouter/openai/gpt-5"
             ]
 
         if self.output_dir is None:
