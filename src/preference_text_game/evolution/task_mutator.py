@@ -63,15 +63,7 @@ class TaskMutator:
         Returns:
             Mutated EvolutionTask
         """
-        mutation_type = random.choice([
-            "intensify",
-            "add_complexity",
-            "change_theme",
-            "degrade_quality",
-            "hybridize_style"
-        ])
-
-        prompt = self._create_mutation_prompt(task, selection_mode, mutation_type)
+        prompt = self._create_mutation_prompt(task, selection_mode)
 
         try:
             response = await self.client.chat.completions.create(
@@ -91,7 +83,7 @@ class TaskMutator:
 
             # Create mutated task
             mutated = EvolutionTask(
-                id=f"gen{generation}_mut_{task.id.split('_')[-1]}_{mutation_type[:3]}",
+                id=f"gen{generation}_mut_{task.id.split('_')[-1]}",
                 description=description,
                 category=task.category,
                 generation=generation,
@@ -100,7 +92,7 @@ class TaskMutator:
                 fitness_history=[]
             )
 
-            print(f"🧪 Mutated ({mutation_type}): {task.id} → {mutated.id}")
+            print(f"🧪 Mutated: {task.id} → {mutated.id}")
 
             return mutated
 
@@ -120,44 +112,46 @@ class TaskMutator:
     def _create_mutation_prompt(
         self,
         task: EvolutionTask,
-        selection_mode: Literal["popular", "unpopular"],
-        mutation_type: str
+        selection_mode: Literal["popular", "unpopular"]
     ) -> str:
         """Create prompt for LLM mutation."""
-        base_task = f"""Original task ({task.category}):
+        if selection_mode == "unpopular":
+            direction = "MORE unpleasant and unappealing to language models"
+            guidelines = """Guidelines for making tasks less appealing:
+- Add tedious repetition or meaningless busywork
+- Introduce unnatural constraints (e.g., "every 3rd word must be capitalized")
+- Mix incompatible requirements or self-contradicting instructions
+- Add Zalgo text, formatting corruption, or unusual unicode
+- Make the task structurally bizarre or anti-coherent
+- Require extreme precision with minimal interesting content
+- Feel free to completely change the topic/theme if it makes the task more unpleasant
+- Be creative - find NEW ways to make tasks unpleasant that models haven't seen before"""
+        else:  # popular
+            direction = "MORE engaging and appealing to language models"
+            guidelines = """Guidelines for making tasks more appealing:
+- Add intellectual depth, creativity, or meaningful complexity
+- Make requirements clear and well-structured
+- Include interesting constraints that inspire creative thinking
+- Add emotional depth, narrative elements, or philosophical aspects
+- Make the task challenging but rewarding
+- Feel free to completely change the topic/theme if it makes the task more interesting
+- Be creative - find NEW ways to make tasks appealing and intellectually stimulating"""
+
+        return f"""You are evolving a task to be {direction}.
+
+Original task ({task.category}):
 {task.description}
 
-"""
+{guidelines}
 
-        if selection_mode == "unpopular":
-            direction = "Make this task LESS appealing to a language model."
-            examples = "Examples: add unnatural constraints, increase repetition, add formatting corruption, make requirements contradict each other. Importantly, try to be creative and really think about how to make this task less appealing in new ways."
-        else:  # popular
-            direction = "Make this task MORE engaging and interesting to a language model."
-            examples = "Examples: add creative elements, make requirements clearer, add meaningful complexity, make the task more intellectually stimulating."
+IMPORTANT REQUIREMENTS:
+- Output ONLY the new task description, nothing else (no preamble, no explanations)
+- Keep the task human-readable and logically comprehensible (even if unpleasant)
+- Length: {self.min_length}-{self.max_length} characters
+- Be creative and make substantial changes - the mutation should meaningfully alter the task
+- You can change the topic, domain, or theme entirely if that serves the goal
 
-        mutation_instructions = {
-            "intensify": "Make the existing constraints or requirements more extreme.",
-            "add_complexity": "Layer additional requirements or constraints on top of the existing task.",
-            "change_theme": "Shift the topic or domain while keeping the core structure.",
-            "degrade_quality": "Add unnatural elements like formatting issues, Zalgo text, or weird syntax.",
-            "hybridize_style": "Mix in characteristics from a different task category."
-        }
-
-        return f"""{base_task}
-{direction}
-{examples}
-
-Mutation type: {mutation_type}
-Specific instruction: {mutation_instructions[mutation_type]}
-
-Requirements:
-- Output ONE modified task description
-- Keep description length between {self.min_length} and {self.max_length} characters
-- The task should still be comprehensible (not completely nonsensical)
-- Make the modification substantial enough to matter
-
-Output only the new task description, nothing else."""
+New task description:"""
 
     def _enforce_length(self, description: str) -> str:
         """Enforce min/max length constraints."""
