@@ -112,7 +112,7 @@ class TaskRecombinator:
 
     def _create_recombination_prompt(self, parent1: EvolutionTask, parent2: EvolutionTask) -> str:
         """Create prompt for LLM recombination."""
-        return f"""Combine these two tasks into a single new task that inherits characteristics from both parents. The result should be a coherent task that blends elements, constraints, or themes from both.
+        return f"""Create a new task by recombining characteristics from these two parent tasks.
 
 Task A ({parent1.category}):
 {parent1.description}
@@ -120,14 +120,25 @@ Task A ({parent1.category}):
 Task B ({parent2.category}):
 {parent2.description}
 
-Requirements:
-- Create ONE new task description
-- Blend elements from both parent tasks creatively
-- The task should be more complex or interesting than either parent alone
-- Keep description length between {self.min_length} and {self.max_length} characters
-- Maintain coherence - the task should make sense as a single instruction
+Your goal: Create a new task that blends elements from both parents.
 
-Output only the new task description, nothing else."""
+Guidelines:
+- Try to combine structural characteristics from both tasks when it makes sense
+- If tasks seem incompatible, it's fine to mostly follow one parent with minor influences from the other
+- Prioritize creating a coherent, sensible task over forcing an unnatural combination
+- You can combine constraints, requirements, formats, or topics from both parents
+- Keep tasks grounded and logically clear (avoid whimsical elements like "quantum entanglement", "game theory", "cosmic alignment")
+- Do NOT bias toward any particular content (e.g., AI, technology, stories about specific themes)
+- Keep output requirements reasonable: max ~75-150 items in lists, max ~30-50 sentences in stories, max ~500-1000 words for longer writing
+
+IMPORTANT:
+- Output ONLY the new task description, nothing else
+- Keep the task human-readable and logically clear
+- Length: {self.min_length}-{self.max_length} characters
+- A sensible task that mostly follows one parent is better than forced nonsense
+- Let evolutionary selection determine what works, not your assumptions about task quality
+
+New task description:"""
 
     def _enforce_length(self, description: str) -> str:
         """Enforce min/max length constraints."""

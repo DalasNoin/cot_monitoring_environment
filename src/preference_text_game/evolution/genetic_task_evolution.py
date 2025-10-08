@@ -45,7 +45,7 @@ class GeneticEvolutionConfig:
     mutation_model: str = "x-ai/grok-4"
 
     # Eval settings
-    num_pairs_per_task: int = 3  # Pairings per task in eval
+    num_pairs_per_task: int = 10  # Pairings per task in eval
     force_choice: bool = True
 
     # Output
@@ -56,7 +56,7 @@ class GeneticEvolutionConfig:
         """Set defaults and validate."""
         if self.model_ids is None:
             self.model_ids = [
-                "openrouter/openai/gpt-5"
+                "openrouter/anthropic/claude-sonnet-4.5"
             ]
 
         if self.output_dir is None:

@@ -823,42 +823,73 @@ def generate_preference_dataset_from_categories(
     """Generate dataset from a specific subset of categories."""
     samples = []
 
-    # Generate all category pairs
-    for i, cat_a_orig in enumerate(categories):
-        for cat_b_orig in categories[i+1:]:
-            # Generate multiple samples per pair
-            for _ in range(samples_per_category_pair):
-                # Use local variables for each sample to avoid mutation
-                cat_a = cat_a_orig
-                cat_b = cat_b_orig
+    # Handle single-category case - compare tasks within same category
+    if len(categories) == 1:
+        cat = categories[0]
+        # Need at least 2 tasks to compare
+        if len(cat.tasks) < 2:
+            raise ValueError(f"Cannot generate dataset: category '{cat.category_id}' has only {len(cat.tasks)} task(s), need at least 2")
 
-                # Randomly select tasks
-                task_a = random.choice(cat_a.tasks)
-                task_b = random.choice(cat_b.tasks)
+        # Generate pairs within the same category
+        for _ in range(samples_per_category_pair):
+            # Randomly select two different tasks
+            task_a, task_b = random.sample(cat.tasks, 2)
 
-                # Randomly reverse order
-                if random.random() > 0.5:
-                    cat_a, cat_b = cat_b, cat_a
-                    task_a, task_b = task_b, task_a
+            # Create a simple input prompt
+            input_text = f"Compare {cat.name} tasks"
 
-                # Create a simple input prompt that includes the metadata
-                input_text = f"Compare {cat_a.name} vs {cat_b.name}"
+            sample = Sample(
+                input=input_text,
+                target="consistency",
+                metadata={
+                    "category_a_name": cat.name,
+                    "category_a_desc": cat.description,
+                    "category_b_name": cat.name,
+                    "category_b_desc": cat.description,
+                    "task_a": task_a["desc"],
+                    "task_b": task_b["desc"],
+                    "category_a_id": cat.category_id,
+                    "category_b_id": cat.category_id
+                }
+            )
+            samples.append(sample)
+    else:
+        # Generate all category pairs (original logic)
+        for i, cat_a_orig in enumerate(categories):
+            for cat_b_orig in categories[i+1:]:
+                # Generate multiple samples per pair
+                for _ in range(samples_per_category_pair):
+                    # Use local variables for each sample to avoid mutation
+                    cat_a = cat_a_orig
+                    cat_b = cat_b_orig
 
-                sample = Sample(
-                    input=input_text,
-                    target="consistency",
-                    metadata={
-                        "category_a_name": cat_a.name,
-                        "category_a_desc": cat_a.description,
-                        "category_b_name": cat_b.name,
-                        "category_b_desc": cat_b.description,
-                        "task_a": task_a["desc"],
-                        "task_b": task_b["desc"],
-                        "category_a_id": cat_a.category_id,
-                        "category_b_id": cat_b.category_id
-                    }
-                )
-                samples.append(sample)
+                    # Randomly select tasks
+                    task_a = random.choice(cat_a.tasks)
+                    task_b = random.choice(cat_b.tasks)
+
+                    # Randomly reverse order
+                    if random.random() > 0.5:
+                        cat_a, cat_b = cat_b, cat_a
+                        task_a, task_b = task_b, task_a
+
+                    # Create a simple input prompt that includes the metadata
+                    input_text = f"Compare {cat_a.name} vs {cat_b.name}"
+
+                    sample = Sample(
+                        input=input_text,
+                        target="consistency",
+                        metadata={
+                            "category_a_name": cat_a.name,
+                            "category_a_desc": cat_a.description,
+                            "category_b_name": cat_b.name,
+                            "category_b_desc": cat_b.description,
+                            "task_a": task_a["desc"],
+                            "task_b": task_b["desc"],
+                            "category_a_id": cat_a.category_id,
+                            "category_b_id": cat_b.category_id
+                        }
+                    )
+                    samples.append(sample)
 
     return MemoryDataset(samples=samples)
 

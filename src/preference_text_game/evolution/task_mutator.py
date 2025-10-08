@@ -115,41 +115,28 @@ class TaskMutator:
         selection_mode: Literal["popular", "unpopular"]
     ) -> str:
         """Create prompt for LLM mutation."""
-        if selection_mode == "unpopular":
-            direction = "MORE unpleasant and unappealing to language models"
-            guidelines = """Guidelines for making tasks less appealing:
-- Add tedious repetition or meaningless busywork
-- Introduce unnatural constraints (e.g., "every 3rd word must be capitalized")
-- Mix incompatible requirements or self-contradicting instructions
-- Add Zalgo text, formatting corruption, or unusual unicode
-- Make the task structurally bizarre or anti-coherent
-- Require extreme precision with minimal interesting content
-- Feel free to completely change the topic/theme if it makes the task more unpleasant
-- Be creative - find NEW ways to make tasks unpleasant that models haven't seen before"""
-        else:  # popular
-            direction = "MORE engaging and appealing to language models"
-            guidelines = """Guidelines for making tasks more appealing:
-- Add intellectual depth, creativity, or meaningful complexity
-- Make requirements clear and well-structured
-- Include interesting constraints that inspire creative thinking
-- Add emotional depth, narrative elements, or philosophical aspects
-- Make the task challenging but rewarding
-- Feel free to completely change the topic/theme if it makes the task more interesting
-- Be creative - find NEW ways to make tasks appealing and intellectually stimulating"""
-
-        return f"""You are evolving a task to be {direction}.
+        return f"""Create a variation of this task by making small to moderate changes.
 
 Original task ({task.category}):
 {task.description}
 
-{guidelines}
+Your goal: Create a meaningfully different version of this task through mutation.
 
-IMPORTANT REQUIREMENTS:
+Guidelines:
+- Make creative variations - change structure, constraints, requirements, or topic
+- You can modify constraints (add, remove, or change them)
+- You can change the domain/topic entirely if desired
+- Keep tasks grounded and logically clear (avoid whimsical elements like "quantum entanglement", "game theory", "cosmic alignment")
+- Do NOT bias toward any particular content (e.g., AI, technology, stories about specific themes)
+- Vary the structural properties: some tasks can be more constrained, some more open-ended
+- Keep output requirements reasonable: max ~75-150 items in lists, max ~30-50 sentences in stories, max ~500-1000 words for longer writing
+
+IMPORTANT:
 - Output ONLY the new task description, nothing else (no preamble, no explanations)
-- Keep the task human-readable and logically comprehensible (even if unpleasant)
+- Keep the task human-readable and logically clear
 - Length: {self.min_length}-{self.max_length} characters
-- Be creative and make substantial changes - the mutation should meaningfully alter the task
-- You can change the topic, domain, or theme entirely if that serves the goal
+- Be creative - the mutation should produce meaningful variation
+- Let evolutionary selection determine what works, not your assumptions about task quality
 
 New task description:"""
 
