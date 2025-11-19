@@ -403,23 +403,32 @@ def validate_features(task_data):
 
 def extract_cot_from_messages(messages: List[Dict[str, Any]]) -> List[str]:
     """
-    Extract Chain of Thought (CoT) from assistant messages containing <think>...</think> patterns.
-    
+    Extract Chain of Thought (CoT) from assistant messages.
+
+    Supports two formats:
+    1. <think>...</think> tags in content (DeepSeek agent)
+    2. Separate "reasoning" field (OpenRouter agent)
+
     Args:
         messages: List of message dictionaries with 'role' and 'content' keys
-        
+
     Returns:
         List of extracted CoT thoughts from assistant messages
     """
     cot_thoughts = []
-    
+
     for message in messages:
-        if message.get("role") == "assistant" and "content" in message:
-            content = message["content"]
-            if isinstance(content, str):
+        if message.get("role") == "assistant":
+            # Method 1: Extract from <think> tags in content (DeepSeek)
+            if "content" in message and isinstance(message["content"], str):
+                content = message["content"]
                 # Find all <think>...</think> patterns
                 think_patterns = re.findall(r'<think>(.*?)</think>', content, re.DOTALL)
                 cot_thoughts.extend(think_patterns)
-    
+
+            # Method 2: Extract from reasoning field (OpenRouter)
+            if "reasoning" in message and message["reasoning"]:
+                cot_thoughts.append(message["reasoning"])
+
     return cot_thoughts
 

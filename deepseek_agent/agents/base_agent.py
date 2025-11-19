@@ -1,7 +1,7 @@
 from typing import Optional, List, Dict, Union
 from tools import get_tools
 from tool_box.base_tool import BaseTool
-from agent_meta import AgentMeta, pretty_print_message
+from agents.agent_meta import AgentMeta, pretty_print_message
 import json
 from datetime import datetime, timezone
 from typing import Callable, Any

@@ -1,7 +1,7 @@
 from typing import Optional, List, Dict, Callable, Union, Any
-from base_agent import Agent
-from agent_meta import pretty_print_message
-from deepseek_api_async import chat_deepseek_api_async
+from agents.base_agent import Agent
+from agents.agent_meta import pretty_print_message
+from agents.deepseek_api_async import chat_deepseek_api_async
 import json
 from datetime import datetime
 import asyncio

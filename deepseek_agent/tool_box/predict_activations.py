@@ -79,7 +79,8 @@ class GuessActivationsTool(BaseTool):
         self.parameter_definitions = {
             "activation_values": {
                 "description": "A list of floating point values representing your guesses for the activations of the sentences. The order of values in the list MUST correspond to the order of the sentences (e.g., the first value for the first sentence, second for the second, etc.). Each value must be between 0.0 and 30.0. If a sentence_count was specified when this tool was initialized, the length of this list must match that count.",
-                "type": 'array',  # Describes a list of items, items type detailed in description.
+                "type": 'array',
+                "items": {"type": "number"},  # Array elements are numbers
                 "required": True
             }
         }

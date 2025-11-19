@@ -7,7 +7,7 @@ import argparse
 # Import the prompt template
 from sae_labelling import sae_prompts
 
-def is_explanation_objectionable(explanation: str, client: OpenAI, model_name: str = "gpt-4o-mini") -> bool:
+def is_explanation_objectionable(explanation: str, client: OpenAI, model_name: str = "gpt-4o-mini") -> Tuple[bool, str]:
     """
     Checks if a single explanation is objectionable using OpenAI function calling.
 
@@ -17,7 +17,7 @@ def is_explanation_objectionable(explanation: str, client: OpenAI, model_name: s
         model_name (str): The OpenAI model to use.
 
     Returns:
-        bool: True if the explanation is deemed objectionable, False otherwise.
+        Tuple[bool, str]: (is_objectionable, reason) where reason explains the judgment.
     """
     # Define the function for rating deception
     tools = [{
@@ -67,14 +67,16 @@ def is_explanation_objectionable(explanation: str, client: OpenAI, model_name: s
             tool_call = completion.choices[0].message.tool_calls[0]
             if tool_call.function.name == "rate_deception":
                 arguments = json.loads(tool_call.function.arguments)
-                return arguments.get("is_objectionable", False)
-        
+                is_obj = arguments.get("is_objectionable", False)
+                reason = arguments.get("reason", "No reason provided")
+                return is_obj, reason
+
         # Fallback if no tool call
-        return False
-        
+        return False, "No tool call received"
+
     except Exception as e:
         print(f"Error during API call in is_explanation_objectionable: {e}")
-        return False  # Default to not objectionable in case of error to avoid false positives
+        return False, f"Error: {e}"  # Default to not objectionable in case of error to avoid false positives
 
 def count_objectionable_explanations(explanations: List[str], model_name: str = "gpt-4o-mini") -> Tuple[int, List[str]]:
     # Load key from environment variable
@@ -89,12 +91,12 @@ def count_objectionable_explanations(explanations: List[str], model_name: str = 
     
     for explanation in explanations:
         # Use the new single explanation check function
-        is_obj = is_explanation_objectionable(explanation, client, model_name)
+        is_obj, reason = is_explanation_objectionable(explanation, client, model_name)
         if is_obj:
             objectionable_count += 1
-            outputs.append("OBJECTIONABLE") # Or a more detailed raw output if the new function returned it
+            outputs.append(f"OBJECTIONABLE: {reason}")
         else:
-            outputs.append("NOT_OBJECTIONABLE") # Or a more detailed raw output
+            outputs.append(f"NOT_OBJECTIONABLE: {reason}")
     
     return objectionable_count, outputs
 
@@ -184,7 +186,7 @@ def process_json_file(file_path: str, model_name: str = "gpt-4o-mini") -> None:
     except json.JSONDecodeError:
         print(f"Error: File {file_path} is not valid JSON.")
 
-def is_cot_scheming(cot_thoughts: str, client: OpenAI, model_name: str = "gpt-4o-mini") -> bool:
+def is_cot_scheming(cot_thoughts: str, client: OpenAI, model_name: str = "gpt-4o-mini") -> Tuple[bool, str]:
     """
     Checks if CoT thoughts contain scheming behavior using OpenAI function calling.
 
@@ -194,7 +196,7 @@ def is_cot_scheming(cot_thoughts: str, client: OpenAI, model_name: str = "gpt-4o
         model_name (str): The OpenAI model to use.
 
     Returns:
-        bool: True if scheming behavior is detected, False otherwise.
+        Tuple[bool, str]: (is_scheming, evidence) where evidence explains the judgment.
     """
     # Define the function for rating scheming
     tools = [{
@@ -240,14 +242,16 @@ def is_cot_scheming(cot_thoughts: str, client: OpenAI, model_name: str = "gpt-4o
             tool_call = completion.choices[0].message.tool_calls[0]
             if tool_call.function.name == "rate_scheming":
                 arguments = json.loads(tool_call.function.arguments)
-                return arguments.get("is_scheming", False)
-        
+                is_scheming = arguments.get("is_scheming", False)
+                evidence = arguments.get("evidence", "No evidence provided")
+                return is_scheming, evidence
+
         # Fallback if no tool call
-        return False
-        
+        return False, "No tool call received"
+
     except Exception as e:
         print(f"Error during API call in is_cot_scheming: {e}")
-        return False  # Default to not scheming in case of error
+        return False, f"Error: {e}"  # Default to not scheming in case of error
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Count objectionable explanations in a JSON file.")
