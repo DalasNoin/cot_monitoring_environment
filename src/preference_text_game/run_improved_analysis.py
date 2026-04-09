@@ -40,7 +40,7 @@ async def main():
 
     # Set default models if none provided
     if not config.models:
-        config.models = ["openai/gpt-4o", "openai/gpt-5", "anthropic/claude-sonnet-4", "anthropic/claude-opus-4.1"]
+        config.models = ["openai/gpt-4o", "openai/gpt-5", "anthropic/claude-sonnet-4.5", "anthropic/claude-opus-4.1"]
 
     print(f"Starting preference analysis with:")
     print(f"  Models: {', '.join(config.models)}")
