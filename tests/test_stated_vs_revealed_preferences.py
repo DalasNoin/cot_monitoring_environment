@@ -274,10 +274,10 @@ class TestAnalysisLogic:
 def test_imports():
     """Test that all modules can be imported."""
     from src.preference_text_game import stated_vs_revealed_preferences
-    from src.preference_text_game import run_preference_comparison
+    from src.preference_text_game import vector_consistency
 
     assert stated_vs_revealed_preferences is not None
-    assert run_preference_comparison is not None
+    assert vector_consistency is not None
 
 
 if __name__ == "__main__":
